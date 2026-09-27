@@ -24,12 +24,15 @@
   }
 
   * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
   body {
     background: var(--ground);
     color: var(--ink);
     font-family: var(--f);
     padding-inline: 0;
+    -webkit-tap-highlight-color: transparent;
   }
+  a, button { touch-action: manipulation; }
   h1, h2 { margin: 0; text-wrap: balance; font-weight: 500; }
   p { margin: 0; text-wrap: pretty; }
   a { color: var(--acc); text-decoration: none; transition: color .15s ease; }
@@ -39,7 +42,7 @@
   :focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
-  .cap {
+  .cap, .kicker {
     font: 400 11px/1 var(--f); letter-spacing: .3em; text-transform: uppercase; color: var(--ink);
   }
   .flanked { display: flex; align-items: center; justify-content: center; gap: 16px; }
@@ -90,9 +93,10 @@
     .topnav .brand { justify-self: start; }
     .topnav .left, .topnav .right.nav-link { display: none; }
     .topnav .burger {
-      display: flex; flex-direction: column; gap: 5px; width: 20px; justify-self: end;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 5px; width: 44px; height: 44px; justify-self: end;
     }
-    .topnav .burger span { height: 1px; background: var(--ink); }
+    .topnav .burger span { width: 20px; height: 1px; background: var(--ink); }
   }
 
   /* mobile overlay menu */
@@ -104,7 +108,7 @@
   }
   .menu-overlay.open { opacity: 1; pointer-events: auto; }
   .menu-top { display: flex; align-items: center; justify-content: space-between; font: 400 11px/1 var(--f); letter-spacing: .2em; text-transform: uppercase; }
-  .menu-close { color: var(--soft); letter-spacing: .06em; text-transform: none; font-size: 13px; background: none; border: none; }
+  .menu-close { color: var(--soft); letter-spacing: .06em; text-transform: none; font-size: 13px; background: none; border: none; padding: 15px 10px; margin: -15px -10px; }
   .menu-links { padding: 40px 0 0; display: flex; flex-direction: column; text-align: center; }
   .menu-links a { font: 400 31px/1.8 var(--f); color: var(--ink); }
   .menu-links a.reg { color: var(--acc); }
@@ -118,8 +122,6 @@
   /* ---------- shared section rhythm ---------- */
   .band { background: var(--sand); }
   .center { text-align: center; }
-  .g56 { padding-inline: 56px; }
-  @media (max-width: 860px) { .g56 { padding-inline: 22px; } }
 
   /* ---------- ACCUEIL ---------- */
   .hero { height: 640px; position: relative; }
@@ -129,13 +131,11 @@
   .hero-sub { margin-top: 16px; font: 400 15px/1 var(--f); letter-spacing: .26em; text-transform: uppercase; color: var(--soft); }
 
   .intro { max-width: 820px; margin: 0 auto; padding: 96px 56px 0; text-align: center; }
-  .intro .kicker { font: 400 11px/1 var(--f); letter-spacing: .3em; text-transform: uppercase; color: var(--ink); }
   .intro .lede { margin: 26px 0 0; font: 400 37px/1.38 var(--f); color: var(--ink); }
   .intro .body { margin: 26px auto 0; max-width: 58ch; font: 400 20px/1.66 var(--f); color: var(--soft); }
 
   .two-col { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 56px; padding: 92px 56px 0; }
-  .field .kicker { font: 400 11px/1 var(--f); letter-spacing: .3em; text-transform: uppercase; color: var(--ink); }
-  .field .title { margin-top: 16px; font: 500 38px/1.12 var(--f); color: var(--disp); }
+  .field .title, .split .title { margin-top: 16px; font: 500 38px/1.12 var(--f); color: var(--disp); }
   .field .detail { margin-top: 12px; font: 400 19px/1.7 var(--f); color: var(--soft); }
   .field .link-u { margin-top: 20px; }
 
@@ -144,7 +144,6 @@
     padding: 92px 56px; align-items: center; margin-top: 92px;
   }
   .split .ph { height: 340px; }
-  .split .title { margin-top: 16px; font: 500 38px/1.12 var(--f); color: var(--disp); }
   .split .body { margin: 14px 0 0; max-width: 48ch; font: 400 20px/1.66 var(--f); color: var(--soft); }
 
   .portraits { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 56px; padding: 92px 56px 0; }
@@ -153,7 +152,6 @@
   .portraits .bio { margin: 10px 0 0; font: 400 19px/1.7 var(--f); color: var(--soft); }
 
   .registry-cta { max-width: 780px; margin: 0 auto; padding: 96px 56px 0; text-align: center; }
-  .registry-cta .kicker { font: 400 11px/1 var(--f); letter-spacing: .3em; text-transform: uppercase; color: var(--ink); }
   .registry-cta h2 { margin: 18px 0 0; font: 500 56px/1.06 var(--f); letter-spacing: -.02em; color: var(--ink); }
   .registry-cta p { margin: 20px 0 0; font: 400 20px/1.66 var(--f); color: var(--soft); }
   .registry-cta .btn { margin-top: 28px; }
@@ -181,20 +179,18 @@
   .t-body { padding: 0 0 36px; }
   .t-body.last { padding-bottom: 0; }
   .t-title { font: 500 28px/1.16 var(--f); color: var(--disp); }
-  .t-desc { font: 400 19px/1.66 var(--f); color: var(--soft); margin-top: 6px; }
+  .t-desc, .addr-line, .a-detail { font: 400 19px/1.66 var(--f); color: var(--soft); margin-top: 6px; }
 
   .addr-split { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 48px; padding: 76px 56px; align-items: center; margin-top: 76px; }
   .addr-split .ph { height: 300px; }
-  .addr-split .kicker { font: 400 11px/1 var(--f); letter-spacing: .3em; text-transform: uppercase; color: var(--ink); }
   .addr-name { margin-top: 16px; font: 500 26px/1.24 var(--f); color: var(--disp); }
   .addr-name.mt { margin-top: 26px; }
-  .addr-line { font: 400 19px/1.66 var(--f); color: var(--soft); margin-top: 6px; }
 
   .access-block { padding: 76px 56px 96px; }
   .access-block .flanked { margin-bottom: 44px; }
   .access-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 40px; }
   .a-title { font: 500 26px/1.24 var(--f); color: var(--disp); }
-  .a-detail { font: 400 19px/1.66 var(--f); color: var(--soft); margin-top: 6px; }
+  .a-detail a { color: inherit; }
 
   /* ---------- LISTE ---------- */
   .liste-head { text-align: center; max-width: 700px; margin: 0 auto; padding: 76px 56px 0; }
@@ -450,7 +446,7 @@
       </div>
       <div>
         <div class="a-title">En taxi depuis Sens</div>
-        <div class="a-detail">Taxis Victor Hugo — 03 86 64 41 15<br>Taxi Sénonais — 06 10 35 48 12</div>
+        <div class="a-detail">Taxis Victor Hugo — <a href="tel:+33386644115">03 86 64 41 15</a><br>Taxi Sénonais — <a href="tel:+33610354812">06 10 35 48 12</a></div>
       </div>
     </div>
   </div>
