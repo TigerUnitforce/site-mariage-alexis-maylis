@@ -124,13 +124,20 @@
   .center { text-align: center; }
 
   /* ---------- ACCUEIL ---------- */
-  .hero { aspect-ratio: 1672 / 941; max-height: calc(100vh - 70px); min-height: 480px; position: relative; overflow: hidden; background: var(--sand); }
-  .hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
-  .hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(255,253,251,.92) 0, rgba(255,253,251,.7) 26%, rgba(255,253,251,0) 54%); }
-  .hero-copy { position: absolute; z-index: 1; inset: auto 0 48px; text-align: center; padding: 0 40px; }
-  .hero-eyebrow { font: 400 13px/1 var(--f); letter-spacing: .36em; color: var(--ink); }
-  .hero-names { margin: 16px 0 0; font: 500 114px/.94 var(--f); letter-spacing: -.02em; color: var(--ink); }
-  .hero-sub { margin-top: 16px; font: 400 15px/1 var(--f); letter-spacing: .26em; text-transform: uppercase; color: var(--soft); }
+  .hero { height: min(100svh, 62vw); min-height: 520px; position: relative; overflow: hidden; background: #24331f; color: var(--ground); }
+  .hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; filter: saturate(1.12) contrast(1.04); }
+  .hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,.34) 0, rgba(0,0,0,0) 20%), linear-gradient(to top, rgba(0,0,0,.3) 0, rgba(0,0,0,0) 40%), rgba(0,0,0,.14); }
+  .hero-copy { position: absolute; z-index: 1; left: 0; right: 0; top: 49%; text-align: center; padding: 0 40px; text-shadow: 0 1px 28px rgba(0,0,0,.28); }
+  .hero-eyebrow { font: 400 clamp(13px, 1.15vw, 22px)/1 var(--f); letter-spacing: .36em; }
+  .hero-names { margin: 1.1vw 0 0; font: 500 clamp(64px, 8.1vw, 190px)/.94 var(--f); letter-spacing: -.02em; color: var(--ground); }
+  .hero-sub { margin-top: 1.1vw; font: 400 clamp(14px, 1.25vw, 24px)/1 var(--f); letter-spacing: .26em; text-transform: uppercase; color: rgba(255,253,251,.92); }
+  .hero-kicker { position: absolute; z-index: 1; left: 0; right: 0; bottom: 5.5%; display: flex; align-items: center; justify-content: center; gap: 16px; font: 400 clamp(11px, .9vw, 16px)/1 var(--f); letter-spacing: .3em; text-transform: uppercase; text-shadow: 0 1px 14px rgba(0,0,0,.35); }
+  .hero-kicker .rule { width: clamp(40px, 4vw, 90px); height: 1px; background: rgba(255,253,251,.6); flex-shrink: 0; }
+
+  .on-home .topnav { position: absolute; top: 0; left: 0; right: 0; z-index: 5; text-shadow: 0 1px 14px rgba(0,0,0,.3); }
+  .on-home .topnav a, .on-home .topnav a:hover { color: var(--ground); }
+  .on-home .topnav a:hover { opacity: .8; }
+  .on-home .topnav .burger span { background: var(--ground); }
 
   .intro { max-width: 820px; margin: 0 auto; padding: 96px 56px 0; text-align: center; }
   .intro .lede { margin: 26px 0 0; font: 400 37px/1.38 var(--f); color: var(--ink); }
@@ -212,11 +219,13 @@
 
   /* ---------- MOBILE OVERRIDES ---------- */
   @media (max-width: 860px) {
-    .hero { aspect-ratio: 1 / 1; max-height: none; min-height: 0; }
-    .hero-copy { inset: auto 0 30px; padding: 0 20px; }
+    .hero { height: auto; aspect-ratio: 4 / 5; min-height: 0; }
+    .hero-copy { top: auto; bottom: 64px; padding: 0 20px; }
     .hero-eyebrow { font-size: 10px; letter-spacing: .32em; }
     .hero-names { font: 500 56px/.98 var(--f); letter-spacing: -.02em; margin-top: 12px; }
     .hero-sub { display: none; }
+    .hero-kicker { bottom: 26px; font-size: 9.5px; gap: 10px; }
+    .hero-kicker .rule { width: 26px; }
 
     .intro { padding: 40px 22px 0; }
     .intro .lede { font-size: 23px; line-height: 1.44; }
@@ -276,7 +285,7 @@
   }
 </style>
 </head>
-<body>
+<body class="on-home">
 
 <div class="topnav">
   <a class="left nav-link" href="#" data-goto="jourj">Le jour J</a>
@@ -315,10 +324,10 @@
       <h1 class="hero-names">Maÿlis &amp; Alexis</h1>
       <div class="hero-sub">Nous nous marions</div>
     </div>
+    <div class="hero-kicker"><span class="rule"></span>Dans l'Yonne, entre les blés<span class="rule"></span></div>
   </div>
 
   <div class="intro">
-    <div class="kicker">Dans l'Yonne, entre les blés</div>
     <p class="lede">Nous serions très heureux de vous avoir auprès de nous pour échanger nos vœux, entourés de notre famille et de nos amis.</p>
     <p class="body">Cérémonie religieuse à l'église du village, puis direction le domaine pour le cocktail, le dîner et la nuit. On remet le couvert au brunch le lendemain midi.</p>
   </div>
@@ -463,7 +472,7 @@
     <div class="flanked cap"><span class="rule"></span>Liste de mariage<span class="rule"></span></div>
     <h1>Votre présence<br>nous suffit</h1>
     <p>Mais si le cœur vous en dit, notre liste est ouverte chez <em>Mille Mercis Mariage</em> : une cagnotte pour notre voyage de noces, quelques envies pour la maison, et la liberté de participer comme vous le souhaitez.</p>
-    <a class="btn" href="https://www.millemercismariage.com/" target="_blank" rel="noopener noreferrer">Voir notre liste →</a>
+    <a class="btn" href="https://www.millemercismariage.com/maylisditouiaalexis/liste.html" target="_blank" rel="noopener noreferrer">Voir notre liste →</a>
     <div class="hint">nouvel onglet · millemercismariage.com</div>
   </div>
 
@@ -503,6 +512,7 @@
     views.forEach(function (v) {
       v.hidden = v.getAttribute('data-view') !== name;
     });
+    document.body.classList.toggle('on-home', name === 'accueil');
     var jourjActive = name === 'jourj';
     var listeActive = name === 'liste';
     document.querySelectorAll('.topnav .left').forEach(function (el) { el.classList.toggle('active', jourjActive); });
