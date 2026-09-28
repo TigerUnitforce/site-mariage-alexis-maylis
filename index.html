@@ -5,7 +5,64 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Site du mariage de Maÿlis & Alexis, le 30 juillet 2027 dans l'Yonne.">
 <title>Maÿlis & Alexis</title>
+<meta name="robots" content="noindex, nofollow">
 <script>if ('IntersectionObserver' in window) document.documentElement.classList.add('js');</script>
+<script>
+/* Accès par mot de passe : le site reste masqué tant que le code n'a pas été saisi.
+   On ne garde que l'empreinte SHA-256 (pas le mot de passe en clair) ; c'est un simple
+   filtre côté navigateur, pas une vraie sécurité. Le code saisi est réduit à ses chiffres,
+   donc 30072027 et 30/07/2027 fonctionnent tous les deux. */
+(function () {
+  var HASH = 'e39d9719057f8e5bfc3ca4b83b4b8015d4c6729cc127e095d691be7a0397d502';
+  var SALT = 'maylis-alexis:';
+  var KEY = 'ma-acces';
+  var root = document.documentElement;
+
+  try { if (localStorage.getItem(KEY) === HASH) return; } catch (e) {}
+  root.classList.add('locked');
+
+  function sha256(text) {
+    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)).then(function (buf) {
+      return Array.prototype.map.call(new Uint8Array(buf), function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var gate = document.getElementById('gate');
+    var form = document.getElementById('gate-form');
+    var input = document.getElementById('gate-input');
+    var err = document.getElementById('gate-err');
+    gate.classList.add('open');
+    input.focus();
+
+    function fail(msg) {
+      err.textContent = msg;
+      form.classList.remove('shake');
+      void form.offsetWidth;
+      form.classList.add('shake');
+      input.select();
+    }
+
+    function unlock() {
+      try { localStorage.setItem(KEY, HASH); } catch (e) {}
+      root.classList.remove('locked');
+      window.scrollTo(0, 0);
+      gate.classList.add('leaving');
+      setTimeout(function () { gate.remove(); }, 900);
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      err.textContent = '';
+      var code = input.value.replace(/\D/g, '');
+      if (!window.crypto || !crypto.subtle) { fail('Ce navigateur ne permet pas la vérification.'); return; }
+      sha256(SALT + code).then(function (h) {
+        if (h === HASH) unlock(); else fail('Mot de passe incorrect.');
+      });
+    });
+  });
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
@@ -232,6 +289,36 @@
   .step-title { margin-top: 10px; color: var(--ink); font: 500 22px/1.26 var(--f); }
   .step-body { font: 400 18px/1.68 var(--f); color: var(--soft); margin-top: 6px; }
 
+  /* ---------- ACCÈS PAR MOT DE PASSE ---------- */
+  html.locked { background: var(--ground); }
+  html.locked body > *:not(#gate) { display: none !important; }
+  #gate {
+    display: none; position: fixed; inset: 0; z-index: 200; background: var(--ground);
+    align-items: center; justify-content: center; padding: 24px; text-align: center;
+    transition: opacity .8s ease;
+  }
+  #gate.open { display: flex; }
+  #gate.leaving { opacity: 0; pointer-events: none; }
+  .gate-inner { width: 100%; max-width: 420px; animation: rise 1.1s cubic-bezier(.2, .7, .2, 1) both; }
+  .gate-date { font: 400 13px/1 var(--f); letter-spacing: .36em; }
+  .gate-names { margin-top: 22px; font: 500 clamp(46px, 9vw, 76px)/1 var(--f); letter-spacing: -.02em; color: var(--disp); }
+  .gate-note { margin-top: 22px; font: 400 19px/1.6 var(--f); color: var(--soft); }
+  .gate-form { margin-top: 34px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+  .gate-form input {
+    width: 100%; max-width: 280px; border: 0; border-bottom: 1px solid var(--acc); border-radius: 0;
+    background: transparent; padding: 10px 4px; text-align: center; outline: none;
+    font: 400 24px/1.2 var(--f); letter-spacing: .3em; color: var(--ink);
+    transition: border-color .2s ease, box-shadow .2s ease;
+  }
+  .gate-form input:focus { border-bottom-color: var(--acc-hover); box-shadow: 0 1px 0 var(--acc-hover); }
+  .gate-form .btn { padding: 18px 56px; }
+  .gate-err { min-height: 1.4em; font: 400 17px/1.4 var(--f); color: var(--acc-hover); }
+  .gate-form.shake { animation: shake .45s ease; }
+  @keyframes shake {
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
+  }
+
   /* ---------- ANIMATIONS ---------- */
   @keyframes rise {
     from { opacity: 0; transform: translateY(22px); filter: blur(4px); }
@@ -341,6 +428,19 @@
 </style>
 </head>
 <body class="on-home">
+
+<div id="gate" role="dialog" aria-modal="true" aria-label="Accès au site">
+  <div class="gate-inner">
+    <div class="gate-date">— 30.07.2027 —</div>
+    <div class="gate-names">Maÿlis &amp; Alexis</div>
+    <p class="gate-note">Ce site est réservé à nos invités.<br>Entrez le mot de passe pour continuer.</p>
+    <form class="gate-form" id="gate-form" autocomplete="off">
+      <input id="gate-input" type="password" inputmode="numeric" autocomplete="off" aria-label="Mot de passe" placeholder="Mot de passe" required>
+      <div class="gate-err" id="gate-err" role="alert"></div>
+      <button class="btn" type="submit">Entrer</button>
+    </form>
+  </div>
+</div>
 
 <div class="topnav">
   <a class="left nav-link" href="#" data-goto="jourj">Le jour J</a>
