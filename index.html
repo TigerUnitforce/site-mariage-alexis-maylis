@@ -124,8 +124,10 @@
   .center { text-align: center; }
 
   /* ---------- ACCUEIL ---------- */
-  .hero { height: 640px; position: relative; }
-  .hero-copy { position: absolute; inset: auto 0 48px; text-align: center; padding: 0 40px; }
+  .hero { height: 640px; position: relative; overflow: hidden; background: var(--sand); }
+  .hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+  .hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(255,253,251,.94) 0, rgba(255,253,251,.8) 32%, rgba(255,253,251,0) 66%); }
+  .hero-copy { position: absolute; z-index: 1; inset: auto 0 48px; text-align: center; padding: 0 40px; }
   .hero-eyebrow { font: 400 13px/1 var(--f); letter-spacing: .36em; color: var(--ink); }
   .hero-names { margin: 16px 0 0; font: 500 114px/.94 var(--f); letter-spacing: -.02em; color: var(--ink); }
   .hero-sub { margin-top: 16px; font: 400 15px/1 var(--f); letter-spacing: .26em; text-transform: uppercase; color: var(--soft); }
@@ -303,13 +305,16 @@
 
 <!-- ================= ACCUEIL ================= -->
 <section data-view="accueil">
-  <div class="hero ph center">
+  <div class="hero">
+    <picture>
+      <source media="(max-width: 860px)" srcset="images/hero-mobile.webp">
+      <img src="images/hero-desktop.webp" alt="Maÿlis et Alexis au bord de l'eau" width="1672" height="941" fetchpriority="high">
+    </picture>
     <div class="hero-copy">
       <div class="hero-eyebrow">— 30.07.2027 —</div>
       <h1 class="hero-names">Maÿlis &amp; Alexis</h1>
       <div class="hero-sub">Nous nous marions</div>
     </div>
-    <span>photo plein cadre — portrait de vous deux, format paysage</span>
   </div>
 
   <div class="intro">
