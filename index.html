@@ -140,7 +140,7 @@
     background-color: var(--sand);
     background-image: repeating-linear-gradient(135deg, rgba(22,53,39,.14) 0 1px, transparent 1px 7px);
     display: flex; align-items: flex-end; justify-content: flex-start;
-    width: 100%;
+    width: 100%; object-fit: cover;
   }
   .ph.center { align-items: center; justify-content: center; text-align: center; }
   .ph span {
@@ -234,11 +234,6 @@
   }
   .split .ph { height: 340px; }
   .split .body { margin: 14px 0 0; max-width: 48ch; font: 400 20px/1.66 var(--f); color: var(--muted); }
-
-  .portraits { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 56px; padding: 92px 56px 0; }
-  .portraits .ph { height: 300px; }
-  .portraits .name { margin-top: 20px; font: 500 30px/1.18 var(--f); color: var(--disp); }
-  .portraits .bio { margin: 10px 0 0; font: 400 19px/1.7 var(--f); color: var(--muted); }
 
   .registry-cta { max-width: 780px; margin: 0 auto; padding: 96px 56px 0; text-align: center; }
   .registry-cta h2 { margin: 18px 0 0; font: 500 56px/1.06 var(--f); letter-spacing: -.02em; color: var(--green); }
@@ -424,8 +419,6 @@
     .split .body { display: none; }
     .split .link-u { display: none; }
 
-    .portraits { display: none; }
-
     .registry-cta { padding: 40px 22px 0; }
     .registry-cta h2 { font-size: 33px; line-height: 1.1; }
     .registry-cta p { font-size: 17.5px; line-height: 1.64; }
@@ -563,25 +556,12 @@
   </div>
 
   <div class="split band" id="section-hebergements">
-    <div class="ph"><span>photo — le domaine, ou une chambre d'hôtes</span></div>
+    <img class="ph" src="images/domaine.webp" alt="Le Domaine de Vauluisant" width="1500" height="750" loading="lazy">
     <div class="text">
       <div class="kicker">Hébergements</div>
       <div class="title">Dormir près du domaine</div>
       <p class="body">Quelques chambres sont réservées au domaine et dans les gîtes alentour. Mentionnez le mariage Maÿlis &amp; Alexis en réservant — et pensez au covoiturage, la campagne est jolie mais peu desservie.</p>
       <a class="link-u" href="#" data-goto="hebergements">Voir la liste des hébergements +</a>
-    </div>
-  </div>
-
-  <div class="portraits">
-    <div>
-      <div class="ph center" style="height:300px"><span>portrait — Maÿlis</span></div>
-      <div class="name">Maÿlis</div>
-      <p class="bio">Deux lignes sur elle : d'où elle vient, ce qu'elle fait, et le détail que tout le monde raconte à son sujet. À vous d'écrire, on remplacera ce texte.</p>
-    </div>
-    <div>
-      <div class="ph center" style="height:300px"><span>portrait — Alexis</span></div>
-      <div class="name">Alexis</div>
-      <p class="bio">Idem pour lui. Deux ou trois phrases suffisent : les invités qui ne connaissent qu'un seul de vous deux seront contents de lire l'autre.</p>
     </div>
   </div>
 
@@ -959,7 +939,6 @@
     mark('.intro > *', 'rv', 130);
     mark('.two-col .field', 'rv', 160);
     mark('.split .ph, .split .text', 'rv', 160);
-    mark('.portraits > div', 'rv', 160);
     mark('.registry-cta > *', 'rv', 110);
     mark('.closing > *', 'rv', 140);
     mark('.site-footer > *', 'rv', 120);
