@@ -43,6 +43,24 @@ git push origin main
 
 La mise en ligne prend en général une à deux minutes. En cas de doute sur ce que l'on voit, faire un rafraîchissement forcé (Cmd+Maj+R).
 
+## Disponibilité des hébergements (automatique)
+
+La page « Hébergements » grise un logement quand il est complet. Les statuts viennent de deux sources :
+
+1. **Calendriers iCal** (automatique) : un script GitHub Actions (`.github/workflows/disponibilites.yml`, `scripts/update-disponibilites.mjs`) lit toutes les heures les liens iCal des hébergements et écrit `disponibilites.json`. Une nuit occupée = « complet ».
+2. **Google Sheet** (manuel, optionnel) : un tableur publié en CSV (colonnes `nom`, `statut`), dont l'adresse va dans `SHEET_CSV_URL` dans `index.html`. Il passe en dernier et l'emporte sur l'iCal.
+
+Les liens iCal sont **secrets** (le dépôt est public) : ils vont dans Settings → Secrets and variables → Actions → New repository secret, nom `ICAL_URLS`, valeur au format JSON :
+
+```json
+{
+  "Nom exact de l'hébergement": "https://exemple.com/calendrier.ics",
+  "Autre hébergement à plusieurs chambres": ["https://…/chambre1.ics", "https://…/chambre2.ics"]
+}
+```
+
+Le nom doit être identique à celui de la page. Pour un lancement immédiat : onglet Actions → « Disponibilités des hébergements » → Run workflow. La nuit vérifiée est réglée par `NIGHT` dans le workflow (par défaut le 30 juillet 2027).
+
 ## Mot de passe d'accès
 
 Le site s'ouvre sur une page qui demande un mot de passe. Le code est réduit à ses chiffres à la saisie, donc `JJMMAAAA` et `JJ/MM/AAAA` fonctionnent de la même façon.

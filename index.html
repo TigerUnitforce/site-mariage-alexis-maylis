@@ -145,6 +145,7 @@
   }
   .topnav .brand { justify-self: center; color: var(--ink); letter-spacing: .22em; }
   .topnav .left { justify-self: start; color: var(--ink); }
+  .topnav .nav-group { display: flex; gap: 34px; }
   .topnav .right { justify-self: end; color: var(--acc); }
   .topnav .active { border-bottom: 1px solid currentColor; padding-bottom: 3px; }
   .topnav .burger { display: none; }
@@ -289,6 +290,30 @@
   .step-title { margin-top: 10px; color: var(--ink); font: 500 22px/1.26 var(--f); }
   .step-body { font: 400 18px/1.68 var(--f); color: var(--soft); margin-top: 6px; }
 
+  /* ---------- HÉBERGEMENTS ---------- */
+  .lodge-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 30px; padding: 34px 56px 0; font: 400 11px/1 var(--f); letter-spacing: .2em; text-transform: uppercase; }
+  .lodge-legend span, .lodge-badge { display: inline-flex; align-items: center; gap: 9px; }
+  .lodge-legend span::before, .lodge-badge::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--dot, #7c9a6b); }
+  .lodge-legend .s-peu, .lodge[data-status="peu"] .lodge-badge { --dot: #d99a4e; }
+  .lodge-legend .s-complet, .lodge[data-status="complet"] .lodge-badge { --dot: #9a9490; }
+
+  .lodgings { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 44px 36px; max-width: 1240px; margin: 0 auto; padding: 50px 56px 0; }
+  .lodge { display: flex; flex-direction: column; }
+  .lodge-photo { position: relative; }
+  .lodge-photo .ph, .lodge-photo img { height: 230px; width: 100%; }
+  .lodge-photo img { object-fit: cover; display: block; }
+  .lodge-badge { position: absolute; top: 14px; left: 14px; padding: 8px 12px; background: var(--ground); font: 400 11px/1 var(--f); letter-spacing: .2em; text-transform: uppercase; }
+  .lodge-body { padding-top: 20px; }
+  .lodge-type { font: 400 11px/1 var(--f); letter-spacing: .3em; text-transform: uppercase; }
+  .lodge-name { margin-top: 12px; font: 500 27px/1.2 var(--f); color: var(--disp); }
+  .lodge-meta { margin-top: 8px; font: 400 18px/1.6 var(--f); color: var(--soft); }
+  .lodge-actions { display: flex; flex-wrap: wrap; gap: 12px 26px; margin-top: 18px; }
+  .lodge-photo .ph, .lodge-photo img, .lodge-body { transition: opacity .5s ease, filter .5s ease; }
+  .lodge[data-status="complet"] .lodge-photo .ph, .lodge[data-status="complet"] .lodge-photo img, .lodge[data-status="complet"] .lodge-body { opacity: .5; filter: grayscale(1); }
+  .lodge[data-status="complet"] .lodge-actions a { pointer-events: none; }
+  .lodge-foot { max-width: 640px; margin: 0 auto; padding: 64px 56px 96px; text-align: center; font: 400 19px/1.7 var(--f); color: var(--soft); }
+  .lodge-foot .hint { margin-top: 12px; font: 400 12.5px/1.5 ui-monospace, Menlo, monospace; }
+
   /* ---------- ACCÈS PAR MOT DE PASSE ---------- */
   html.locked { background: var(--ground); }
   html.locked body > *:not(#gate) { display: none !important; }
@@ -424,6 +449,12 @@
 
     .gallery3 { grid-template-columns: 1fr; padding: 40px 22px 0; }
     .steps3 { grid-template-columns: 1fr; gap: 34px; padding: 46px 22px; margin-top: 46px; }
+
+    .lodge-legend { padding: 26px 22px 0; gap: 10px 20px; font-size: 10px; }
+    .lodgings { grid-template-columns: 1fr; gap: 40px; padding: 34px 22px 0; }
+    .lodge-photo .ph, .lodge-photo img { height: 210px; }
+    .lodge-name { font-size: 24px; }
+    .lodge-foot { padding: 44px 22px 64px; font-size: 18px; }
   }
 </style>
 </head>
@@ -443,7 +474,10 @@
 </div>
 
 <div class="topnav">
-  <a class="left nav-link" href="#" data-goto="jourj">Le jour J</a>
+  <div class="left nav-group">
+    <a class="nav-link" href="#" data-goto="jourj">Le jour J</a>
+    <a class="nav-link" href="#" data-goto="hebergements">Hébergements</a>
+  </div>
   <a class="brand" href="#" data-goto="accueil">Maÿlis &amp; Alexis</a>
   <a class="right nav-link" href="#" data-goto="liste">Liste de mariage</a>
   <button class="burger" aria-label="Ouvrir le menu" id="burger-btn"><span></span><span></span></button>
@@ -457,7 +491,7 @@
   <div class="menu-links">
     <a href="#" data-goto="accueil" data-close>Accueil</a>
     <a href="#" data-goto="jourj" data-close>Le jour J</a>
-    <a href="#section-hebergements" data-goto="accueil" data-anchor="section-hebergements" data-close>Hébergements</a>
+    <a href="#" data-goto="hebergements" data-close>Hébergements</a>
     <a href="#section-adresses" data-goto="jourj" data-anchor="section-adresses" data-close>Plan &amp; accès</a>
     <a class="reg" href="#" data-goto="liste" data-close>Liste de mariage</a>
   </div>
@@ -513,7 +547,7 @@
       <div class="kicker">Hébergements</div>
       <div class="title">Dormir près du domaine</div>
       <p class="body">Quelques chambres sont réservées au domaine et dans les gîtes alentour. Mentionnez le mariage Maÿlis &amp; Alexis en réservant — et pensez au covoiturage, la campagne est jolie mais peu desservie.</p>
-      <a class="link-u" href="#section-hebergements" data-goto="accueil" data-anchor="section-hebergements">Voir la liste des hébergements +</a>
+      <a class="link-u" href="#" data-goto="hebergements">Voir la liste des hébergements +</a>
     </div>
   </div>
 
@@ -690,6 +724,28 @@
   </div>
 </section>
 
+<!-- ================= HÉBERGEMENTS ================= -->
+<section data-view="hebergements" hidden>
+  <div class="page-head">
+    <div class="flanked cap"><span class="rule"></span>Hébergements<span class="rule"></span></div>
+    <h1>Dormir près du domaine</h1>
+    <p class="dek">Quelques chambres sont réservées au domaine et dans les gîtes alentour. Mentionnez le mariage Maÿlis &amp; Alexis en réservant.</p>
+  </div>
+
+  <div class="lodge-legend" aria-hidden="true">
+    <span>Disponible</span>
+    <span class="s-peu">Dernières places</span>
+    <span class="s-complet">Complet</span>
+  </div>
+
+  <div class="lodgings" id="lodgings"></div>
+
+  <div class="lodge-foot">
+    La campagne est jolie mais peu desservie : pensez au covoiturage.
+    <div class="hint">disponibilités mises à jour par nos soins</div>
+  </div>
+</section>
+
 <script>
 (function () {
   "use strict";
@@ -702,10 +758,9 @@
       v.hidden = v.getAttribute('data-view') !== name;
     });
     document.body.classList.toggle('on-home', name === 'accueil');
-    var jourjActive = name === 'jourj';
-    var listeActive = name === 'liste';
-    document.querySelectorAll('.topnav .left').forEach(function (el) { el.classList.toggle('active', jourjActive); });
-    document.querySelectorAll('.topnav .right').forEach(function (el) { el.classList.toggle('active', listeActive); });
+    document.querySelectorAll('.topnav .nav-link').forEach(function (el) {
+      el.classList.toggle('active', el.getAttribute('data-goto') === name);
+    });
 
     var target = anchorId ? document.getElementById(anchorId) : null;
     if (target) {
@@ -751,6 +806,126 @@
   tickCountdown();
   setInterval(tickCountdown, 60000);
 
+  /* ---------- hébergements ----------
+     Une entrée par hébergement. status : "dispo" | "peu" | "complet".
+     Pour un suivi en direct sans toucher au code, publier un Google Sheet en CSV
+     (colonnes : nom, statut) et coller son adresse dans SHEET_CSV_URL. */
+  var SHEET_CSV_URL = '';
+  var LODGINGS = [
+    { name: 'Maison de campagne avec sauna, fitness et jardin', type: 'Maison entière · Airbnb', distance: 'Villeneuve-l\u2019Archevêque', price: '', capacity: '10 voyageurs · 4 chambres', address: 'Villeneuve-l\u2019Archevêque', url: 'https://www.airbnb.fr/rooms/34205232?check_in=2027-07-29&check_out=2027-07-31&guests=10&adults=10', photo: '', status: 'dispo' },
+    { name: 'Hébergement n° 2', type: 'Gîte', distance: 'À compléter · distance du domaine', price: 'À compléter · tarif', capacity: 'À compléter · capacité', address: 'À compléter', url: '', photo: '', status: 'peu' },
+    { name: 'Hébergement n° 3', type: 'Hôtel', distance: 'À compléter · distance du domaine', price: 'À compléter · tarif', capacity: 'À compléter · capacité', address: 'À compléter', url: '', photo: '', status: 'complet' }
+  ];
+  var STATUS_LABEL = { dispo: 'Disponible', peu: 'Dernières places', complet: 'Complet' };
+  var lodgeGrid = document.getElementById('lodgings');
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text) n.textContent = text;
+    return n;
+  }
+  function extLink(label, href) {
+    var a = el('a', 'link-u sm', label);
+    a.href = href; a.target = '_blank'; a.rel = 'noopener noreferrer';
+    return a;
+  }
+  function setStatus(card, status) {
+    if (!STATUS_LABEL[status]) status = 'dispo';
+    card.setAttribute('data-status', status);
+    card.querySelector('.lodge-badge').textContent = STATUS_LABEL[status];
+  }
+
+  LODGINGS.forEach(function (l) {
+    var card = el('article', 'lodge');
+    card.setAttribute('data-name', l.name.toLowerCase());
+
+    var photo = el('div', 'lodge-photo');
+    if (l.photo) {
+      var img = el('img'); img.src = l.photo; img.alt = l.name; img.loading = 'lazy';
+      photo.appendChild(img);
+    } else {
+      var ph = el('div', 'ph center'); ph.appendChild(el('span', '', 'photo — ' + l.name));
+      photo.appendChild(ph);
+    }
+    photo.appendChild(el('div', 'lodge-badge'));
+
+    var body = el('div', 'lodge-body');
+    body.appendChild(el('div', 'lodge-type', l.type));
+    body.appendChild(el('div', 'lodge-name', l.name));
+    body.appendChild(el('div', 'lodge-meta', [l.distance, l.capacity, l.price].filter(Boolean).join(' · ')));
+    var actions = el('div', 'lodge-actions');
+    actions.appendChild(extLink('Ouvrir dans Maps ↗', 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(l.address || l.name)));
+    if (l.url) actions.appendChild(extLink('Voir / réserver →', l.url));
+    body.appendChild(actions);
+
+    card.appendChild(photo); card.appendChild(body);
+    setStatus(card, l.status);
+    lodgeGrid.appendChild(card);
+  });
+
+  // suivi en direct : le Google Sheet publié en CSV écrase le statut de chaque hébergement (repéré par son nom)
+  function parseCsv(text) {
+    var rows = [], row = [], cell = '', quoted = false;
+    for (var i = 0; i < text.length; i++) {
+      var c = text[i];
+      if (quoted) {
+        if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+        else if (c === '"') quoted = false;
+        else cell += c;
+      } else if (c === '"') quoted = true;
+      else if (c === ',') { row.push(cell); cell = ''; }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && text[i + 1] === '\n') i++;
+        row.push(cell); rows.push(row); row = []; cell = '';
+      } else cell += c;
+    }
+    if (cell || row.length) { row.push(cell); rows.push(row); }
+    return rows;
+  }
+  function normalizeStatus(raw) {
+    var s = raw.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+    if (/complet|pris|plein|indispo/.test(s)) return 'complet';
+    if (/derni|peu|limit/.test(s)) return 'peu';
+    if (/dispo|libre/.test(s)) return 'dispo';
+    return null;
+  }
+  function cardByName(name) {
+    return lodgeGrid.querySelector('.lodge[data-name="' + name.trim().toLowerCase().replace(/"/g, '\\"') + '"]');
+  }
+  // statuts calculés toutes les heures à partir des calendriers iCal (voir .github/workflows/disponibilites.yml)
+  function applyCalendarStatuses() {
+    return fetch('disponibilites.json', { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (data) {
+        Object.keys(data.statuts || {}).forEach(function (name) {
+          var card = cardByName(name);
+          if (card) setStatus(card, data.statuts[name]);
+        });
+      })
+      .catch(function () { /* fichier absent ou illisible : on garde les statuts de la page */ });
+  }
+  function refreshStatuses() {
+    // le tableur (saisie manuelle) passe en dernier : il a le dernier mot
+    applyCalendarStatuses().then(applySheetStatuses);
+  }
+  function applySheetStatuses() {
+    if (!SHEET_CSV_URL) return;
+    return fetch(SHEET_CSV_URL, { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+      .then(function (text) {
+        parseCsv(text).forEach(function (row) {
+          var status = row[1] && normalizeStatus(row[1]);
+          if (!row[0] || !status) return;
+          var card = row[0] && cardByName(row[0]);
+          if (card) setStatus(card, status);
+        });
+      })
+      .catch(function () { /* en cas d'échec, on garde les statuts écrits dans la page */ });
+  }
+  refreshStatuses();
+  setInterval(refreshStatuses, 120000);
+
   /* ---------- apparition au défilement ---------- */
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (document.documentElement.classList.contains('js') && !reduceMotion) {
@@ -782,6 +957,9 @@
     mark('.liste-head > *', 'rv', 110);
     mark('.gallery3 .ph', 'rv', 120);
     mark('.steps3 > div', 'rv', 140);
+
+    mark('.lodge-legend, .lodge-foot', 'rv');
+    mark('.lodge', 'rv', 120);
 
     var observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
