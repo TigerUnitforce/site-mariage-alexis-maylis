@@ -1,53 +1,47 @@
 # Index du site — index.html
 
-Site en un seul fichier HTML (526 lignes) : `index.html`.
-Cet index sert à retrouver directement la bonne ligne sans avoir à relire tout le fichier.
+Site en un seul fichier HTML (~710 lignes) : `index.html`, plus le dossier `images/`.
+Cet index sert à retrouver directement la bonne zone sans relire tout le fichier
+(les numéros de ligne sont approximatifs : ils bougent dès qu'on édite).
 
 ## 1. Ce que je modifie le plus souvent
 
-| Je veux changer...                            | Où (ligne)                                                          |
-|-------------------------------------------------|------------------------------------------------------------------------|
-| Les couleurs du site (palette)                   | [`:root {...}`](index.html:13) lignes 13-24                            |
-| Le nom / la date en haut de la page d'accueil    | [`.hero-names`](index.html:305) ligne 305                              |
-| Le texte d'intro (accueil)                       | [`.intro`](index.html:319) lignes 319-323                              |
-| Les horaires "Quand" / lieu "Où"                 | [`.two-col`](index.html:325) lignes 325-338                            |
-| Les portraits des mariés (texte)                 | [`.portraits`](index.html:350) lignes 350-361                          |
-| Le programme détaillé (timeline "Le jour J")     | [`.t-grid`](index.html:391) lignes 391-426                             |
-| Les adresses (église / domaine) et le parking    | [`.addr-split`](index.html:421) lignes 421-438                         |
-| Les infos d'accès (voiture / train / taxi)       | [`.access-grid`](index.html:440) lignes 440-456                        |
-| Le lien vers la liste de mariage externe         | [ligne 457](index.html:457) (`millemercismariage.com`)                 |
-| Les liens du menu (nav du haut + menu mobile)     | [`.topnav`](index.html:275) lignes 275-280, [`.menu-overlay`](index.html:282) lignes 282-296 |
+| Je veux changer...                               | Où                                                                 |
+|----------------------------------------------------|----------------------------------------------------------------------|
+| Les couleurs du site (palette)                     | [`:root {...}`](index.html:14)                                       |
+| Le nom / la date en haut de la page d'accueil      | [`.hero`](index.html:372)                                            |
+| La date du compte à rebours                        | [`TARGET`](index.html:634) dans le `<script>` (ISO, fuseau +02:00)   |
+| Le texte d'intro (accueil)                         | [`.intro`](index.html:385)                                           |
+| Les horaires "Quand" / lieu "Où"                   | [`.two-col`](index.html:390)                                         |
+| Les portraits des mariés (texte)                   | [`.portraits`](index.html:420)                                       |
+| Le programme détaillé (timeline "Le jour J")       | [`.timeline`](index.html:460)                                        |
+| Les cartes Google Maps, adresses, liens Maps       | [`.maps-block`](index.html:501)                                      |
+| Les infos d'accès (voiture / train / taxi)         | [`.access-block`](index.html:539)                                    |
+| Le lien vers la liste de mariage externe           | `millemercismariage.com` dans la section `liste`                     |
+| Les liens du menu (nav du haut + menu mobile)      | [`.topnav`](index.html:345), [`.menu-overlay`](index.html:352)       |
 
 ## 2. Structure du fichier
 
 ```
-1-271     <style>          Tout le CSS (voir §3 pour le détail)
-273-484   <body>
-  275-280   .topnav          Menu du haut (desktop) : Le jour J / monogramme / Liste de mariage
-  282-296   .menu-overlay    Menu plein écran (mobile, ouvert via le bouton burger)
-  301-372   section accueil    PAGE 1 — Accueil
-    303-317   .hero              Photo pleine largeur + prénoms + date
-    319-323   .intro             Texte d'intro
-    325-338   .two-col           "Quand" / "Où" (résumé, renvoie vers la page Jour J)
-    340-348   .split             Bloc hébergements (ancre #section-hebergements)
-    350-361   .portraits         Portraits Maÿlis / Alexis
-    363-369   .registry-cta      Appel à la liste de mariage
-    371-374   .closing + footer  Message de clôture + pied de page
-  374-450   section jourj      PAGE 2 — Le jour J (hidden par défaut)
-    390-427   .timeline          Déroulé horaire (cérémonie → brunch du lendemain)
-    421-438   .addr-split        Adresses église / domaine + parking (ancre #section-adresses)
-    440-456   .access-block      Voiture / train / taxi
-  452-483   section liste      PAGE 3 — Liste de mariage (hidden par défaut, lien externe)
-486-524   <script>         Navigation entre les 3 sections + menu mobile (pas de rechargement de page)
+8         script      Ajoute la classe "js" à <html> (active les animations au défilement)
+12-341    <style>     Tout le CSS
+  235       ANIMATIONS    hero, apparition au défilement (.rv), frise, menu mobile
+345-369   .topnav + .menu-overlay
+371-450   section accueil   PAGE 1 — hero (+ compte à rebours #countdown), intro, Quand/Où,
+                            hébergements, portraits, liste, clôture, pied de page
+452-557   section jourj     PAGE 2 — timeline, cartes Google Maps (#section-adresses), accès
+559-591   section liste     PAGE 3 — liste de mariage (lien externe)
+593-708   <script>    Navigation entre les 3 sections, menu mobile, compte à rebours,
+                      apparition au défilement (IntersectionObserver)
 ```
 
-Les 3 "pages" (accueil / jourj / liste) sont en fait 3 `<section data-view="...">` dans
-le même fichier ; le script en bas (fonction `showView`, [ligne 493](index.html:493)) affiche
-la bonne section et masque les autres selon le lien cliqué (`data-goto`).
+Les 3 "pages" (accueil / jourj / liste) sont 3 `<section data-view="...">` dans le même
+fichier ; la fonction `showView` du script affiche la bonne section selon le lien cliqué
+(`data-goto`).
 
 ## 3. CSS — tokens et blocs réutilisables
 
-Variables définies une seule fois dans `:root` ([lignes 13-24](index.html:13)) :
+Variables définies une seule fois dans `:root` :
 
 - `--ground` / `--sand` : fonds (ivoire / sable rosé, sections `.band`)
 - `--ink` : texte principal
@@ -56,41 +50,51 @@ Variables définies une seule fois dans `:root` ([lignes 13-24](index.html:13)) 
 - `--acc` / `--acc-hover` : accent corail vif (liens, boutons)
 - `--line` : ligne de séparation translucide
 
-Blocs de style partagés par plusieurs pages (à modifier une seule fois pour que ça
-se répercute partout) :
+Blocs partagés :
 
-- `.cap, .kicker` — petit texte en majuscules avec espacement large (labels de section)
-- `.btn` / `.link-u` — bouton plein et lien souligné, utilisés dans les 3 pages
-- `.ph` — placeholder de photo (motif hachuré + légende) tant que les vraies photos
-  ne sont pas intégrées
-- `.field .title, .split .title` — gros titre corail (38px) réutilisé dans plusieurs blocs
-- `.t-desc, .addr-line, .a-detail` — texte descriptif (19px, gris sourd) réutilisé dans
-  la timeline et les adresses
+- `.cap, .kicker` — petit texte en majuscules à large espacement (labels de section)
+- `.btn` / `.link-u` — bouton plein et lien souligné (le soulignement se dessine au survol)
+- `.ph` — placeholder de photo (motif hachuré + légende) tant que les vraies photos manquent
+- `.t-desc, .addr-line, .a-detail` — texte descriptif réutilisé dans timeline / adresses / accès
 
-## 4. Photos à intégrer
+## 4. Animations
 
-Le site utilise pour l'instant des placeholders (`<div class="ph">`) avec une légende
-qui décrit la photo attendue, par exemple :
+- **Hero** : photo qui se pose (zoom léger) puis date, prénoms, compte à rebours et
+  légende qui apparaissent l'un après l'autre (`hero-in`, `rise`).
+- **Au défilement** : le script ajoute `.rv` aux blocs listés dans la partie
+  « apparition au défilement » ; ils se révèlent à l'entrée dans l'écran (décalage via `--d`)
+  puis la classe est retirée. Pour animer un nouveau bloc, ajouter son sélecteur avec `mark(...)`.
+- **Frise du jour J** : la ligne se dessine et les points apparaissent (`.rv-line`).
+- **Menu mobile** : les liens arrivent en cascade.
+- Tout est désactivé si le visiteur a activé « réduire les animations » dans son système.
 
-- Hero accueil ([ligne 304](index.html:304)) : "photo plein cadre — portrait de vous deux"
-- Portraits ([lignes 352, 357](index.html:352)) : un portrait de chacun
-- Hébergements ([ligne 341](index.html:341)) : photo du domaine ou d'une chambre d'hôtes
-- Carte église → domaine ([ligne 422](index.html:422))
-- Galerie liste de mariage ([lignes 460-462](index.html:460)) : 3 photos (voyage / maison / libre)
+## 5. Cartes et liens Maps
 
-Pour remplacer un placeholder par une vraie photo : remplacer le `<div class="ph">...</div>`
-par une balise `<img src="..." alt="...">` en gardant la même classe de dimensionnement
-(`.hero`, `.split .ph`, `.portraits .ph`, etc. définissent la hauteur).
+Deux cartes Google Maps intégrées (`<iframe ... output=embed>`, sans clé API) : l'église de
+Villeneuve-l'Archevêque et le Domaine de Vauluisant. Chaque carte a trois liens : Google Maps,
+Itinéraire, Plans (Apple). Un bouton « Église → Domaine » ouvre l'itinéraire entre les deux.
+Des liens « Ouvrir dans Maps » sont aussi dans la timeline et le bloc « Où » de l'accueil.
+Pour changer un lieu : remplacer le texte de recherche (`query=`, `destination=`, `q=`) dans
+les URLs de ce lieu (chercher `Vauluisant` ou `Assomption`).
 
-## 5. Site en ligne
+## 6. Photos à intégrer
+
+Le site utilise encore des placeholders (`<div class="ph">`) pour : hébergements, portraits,
+galerie de la liste de mariage. Le hero utilise déjà `images/hero-desktop.webp` et
+`images/hero-mobile.webp`. Pour remplacer un placeholder : remplacer le `<div class="ph">`
+par une balise `<img src="images/..." alt="...">` en gardant la classe de dimensionnement.
+
+## 7. Site en ligne
 
 Déployé automatiquement via GitHub Pages depuis la branche `main` :
 **https://tigerunitforce.github.io/site-mariage-alexis-maylis/**
 
-## 6. Fichiers du dossier
+Le domaine `maylisetalexis.com` n'est pas encore acheté : pour le brancher plus tard, recréer un
+fichier `CNAME` à la racine contenant le domaine, puis configurer le DNS.
 
-- `index.html` — le site (source unique de vérité, ce qui est sur GitHub)
+## 8. Fichiers du dossier
+
+- `index.html` — le site
+- `images/` — photos du hero
 - `INDEX.md` — ce fichier
-- `ancienne-version-locale/` — ancienne maquette locale (hortensia/mot de passe),
-  gardée en sauvegarde mais **ignorée par git** (`.gitignore`) : elle ne doit plus être
-  utilisée ni poussée sur GitHub.
+- `ancienne-version-locale/` — ancienne maquette locale, **ignorée par git** (`.gitignore`)
