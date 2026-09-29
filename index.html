@@ -8,12 +8,11 @@
 <meta name="robots" content="noindex, nofollow">
 <script>if ('IntersectionObserver' in window) document.documentElement.classList.add('js');</script>
 <script>
-/* Accès par mot de passe : le site reste masqué tant que le code n'a pas été saisi.
+/* Accès par mot de passe : le site reste masqué tant que le mot de passe n'a pas été saisi.
    On ne garde que l'empreinte SHA-256 (pas le mot de passe en clair) ; c'est un simple
-   filtre côté navigateur, pas une vraie sécurité. Le code saisi est réduit à ses chiffres,
-   donc 30072027 et 30/07/2027 fonctionnent tous les deux. */
+   filtre côté navigateur, pas une vraie sécurité. */
 (function () {
-  var HASH = 'e39d9719057f8e5bfc3ca4b83b4b8015d4c6729cc127e095d691be7a0397d502';
+  var HASH = 'd3e4c005cb655705e05b7bf15881ac3526bc3e4c142a795b61e9567cd868d87f';
   var SALT = 'maylis-alexis:';
   var KEY = 'ma-acces';
   var root = document.documentElement;
@@ -54,7 +53,7 @@
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       err.textContent = '';
-      var code = input.value.replace(/\D/g, '');
+      var code = input.value.trim().toLowerCase();
       if (!window.crypto || !crypto.subtle) { fail('Ce navigateur ne permet pas la vérification.'); return; }
       sha256(SALT + code).then(function (h) {
         if (h === HASH) unlock(); else fail('Mot de passe incorrect.');
@@ -475,7 +474,7 @@
     <div class="gate-names">Maÿlis &amp; Alexis</div>
     <p class="gate-note">Ce site est réservé à nos invités.<br>Entrez le mot de passe pour continuer.</p>
     <form class="gate-form" id="gate-form" autocomplete="off">
-      <input id="gate-input" type="password" inputmode="numeric" autocomplete="off" aria-label="Mot de passe" placeholder="Mot de passe" required>
+      <input id="gate-input" type="password" autocomplete="off" aria-label="Mot de passe" placeholder="Mot de passe" required>
       <div class="gate-err" id="gate-err" role="alert"></div>
       <button class="btn" type="submit">Entrer</button>
     </form>
@@ -522,7 +521,7 @@
         <div class="invite-frame">
           <div class="hero-eyebrow">Vous êtes invités au mariage de</div>
           <h1 class="hero-names">Maÿlis &amp; Alexis</h1>
-          <div class="hero-kicker"><span class="rule"></span>30 juillet 2027 · Yonne<span class="rule"></span></div>
+          <div class="hero-kicker"><span class="rule"></span>30 juillet 2027<span class="rule"></span></div>
           <div class="hero-count" id="countdown" hidden></div>
           <a class="btn hero-btn" href="#" data-goto="jourj">Découvrir le programme</a>
         </div>
@@ -578,7 +577,7 @@
 
   <div class="site-footer">
     <div class="names">Maÿlis &amp; Alexis</div>
-    <div class="meta">30 juillet 2027 · Yonne</div>
+    <div class="meta">30 juillet 2027</div>
   </div>
 </section>
 
