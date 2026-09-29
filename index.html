@@ -226,7 +226,7 @@
 
   .split {
     display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1.1fr); gap: 56px;
-    padding: 92px 56px; align-items: center; margin-top: 92px;
+    padding: 92px 56px; align-items: center; margin-top: 92px; cursor: pointer;
   }
   .split .ph { height: 340px; }
   .split .body { margin: 14px 0 0; max-width: 48ch; font: 400 20px/1.66 var(--f); color: var(--muted); }
@@ -411,9 +411,7 @@
     .split { grid-template-columns: 1fr; gap: 0; padding: 0; margin-top: 40px; }
     .split .ph { height: 230px; }
     .split .text { padding: 40px 22px 0; }
-    .split .title { display: none; }
     .split .body { display: none; }
-    .split .link-u { display: none; }
 
     .registry-cta { padding: 40px 22px 0; }
     .registry-cta h2 { font-size: 33px; line-height: 1.1; }
@@ -551,7 +549,7 @@
     </div>
   </div>
 
-  <div class="split band" id="section-hebergements">
+  <div class="split band" id="section-hebergements" data-goto="hebergements">
     <img class="ph" src="images/domaine.webp" alt="Le Domaine de Vauluisant" width="1280" height="855" loading="lazy">
     <div class="text">
       <div class="kicker">Hébergements</div>
