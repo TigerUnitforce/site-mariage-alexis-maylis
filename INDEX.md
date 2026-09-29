@@ -89,8 +89,8 @@ par une balise `<img src="images/..." alt="...">` en gardant la classe de dimens
 Déployé automatiquement via GitHub Pages depuis la branche `main` :
 **https://tigerunitforce.github.io/site-mariage-alexis-maylis/**
 
-Le domaine `maylisetalexis.com` n'est pas encore acheté : pour le brancher plus tard, recréer un
-fichier `CNAME` à la racine contenant le domaine, puis configurer le DNS.
+Domaine personnalisé : `maylisetalexis.com` (acheté chez OVH, DNS configuré vers GitHub Pages
+via le fichier `CNAME` à la racine).
 
 ## 8. Fichiers du dossier
 
