@@ -80,10 +80,6 @@
     --on-green-muted: #CDD6CF;
     --white: #ffffff;
 
-    --status-available: #4F7A5C;
-    --status-few: #B8964F;
-    --status-full: #9C968D;
-
     --f: "Cormorant Garamond", Georgia, "Iowan Old Style", serif;
     --fj: "Jost", system-ui, sans-serif;
   }
@@ -296,28 +292,17 @@
   .step-body { font: 400 18px/1.68 var(--f); color: var(--muted); margin-top: 6px; }
 
   /* ---------- HÉBERGEMENTS ---------- */
-  .lodge-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 30px; padding: 34px 56px 0; font: 400 11px/1 var(--fj); letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
-  .lodge-legend span, .lodge-badge { display: inline-flex; align-items: center; gap: 9px; }
-  .lodge-legend span::before, .lodge-badge::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--dot, var(--status-available)); }
-  .lodge-legend .s-peu, .lodge[data-status="peu"] .lodge-badge { --dot: var(--status-few); }
-  .lodge-legend .s-complet, .lodge[data-status="complet"] .lodge-badge { --dot: var(--status-full); }
-
-  .lodgings { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 44px 36px; max-width: 1240px; margin: 0 auto; padding: 50px 56px 0; }
-  .lodge { display: flex; flex-direction: column; }
-  .lodge-photo { position: relative; }
-  .lodge-photo .ph, .lodge-photo img { height: 230px; width: 100%; }
-  .lodge-photo img { object-fit: cover; display: block; }
-  .lodge-badge { position: absolute; top: 14px; left: 14px; padding: 8px 12px; background: var(--ground); font: 400 11px/1 var(--fj); letter-spacing: .2em; text-transform: uppercase; }
-  .lodge-body { padding-top: 20px; }
-  .lodge-type { font: 400 11px/1 var(--fj); letter-spacing: .3em; text-transform: uppercase; color: var(--muted); }
-  .lodge-name { margin-top: 12px; font: 500 27px/1.2 var(--f); color: var(--disp); }
-  .lodge-meta { margin-top: 8px; font: 400 18px/1.6 var(--f); color: var(--muted); }
-  .lodge-actions { display: flex; flex-wrap: wrap; gap: 12px 26px; margin-top: 18px; }
-  .lodge-photo .ph, .lodge-photo img, .lodge-body { transition: opacity .5s ease, filter .5s ease; }
-  .lodge[data-status="complet"] .lodge-photo .ph, .lodge[data-status="complet"] .lodge-photo img, .lodge[data-status="complet"] .lodge-body { opacity: .5; filter: grayscale(1); }
-  .lodge[data-status="complet"] .lodge-actions a { pointer-events: none; }
+  .lodge-table-wrap { max-width: 860px; margin: 0 auto; padding: 50px 56px 0; }
+  .lodge-city { margin-top: 52px; }
+  .lodge-city:first-child { margin-top: 0; }
+  .lodge-city-name { font: 500 25px/1.2 var(--f); color: var(--disp); border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+  .lodge-table { width: 100%; border-collapse: collapse; margin-top: 18px; table-layout: fixed; }
+  .lodge-table td { padding: 16px 16px 16px 0; font: 400 18px/1.5 var(--f); color: var(--ink); border-bottom: 1px solid var(--sand); vertical-align: top; }
+  .lodge-table tr:last-child td { border-bottom: none; }
+  .lodge-table .lodge-name { width: 42%; }
+  .lodge-table .lodge-address { width: 33%; }
+  .lodge-table .lodge-links { width: 25%; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
   .lodge-foot { max-width: 640px; margin: 0 auto; padding: 64px 56px 96px; text-align: center; font: 400 19px/1.7 var(--f); color: var(--muted); }
-  .lodge-foot .hint { margin-top: 12px; font: 400 12.5px/1.5 ui-monospace, Menlo, monospace; }
 
   /* ---------- ACCÈS PAR MOT DE PASSE ---------- */
   html.locked { background: var(--ground); }
@@ -453,10 +438,15 @@
     .gallery3 { grid-template-columns: 1fr; padding: 40px 22px 0; }
     .steps3 { grid-template-columns: 1fr; gap: 34px; padding: 46px 22px; margin-top: 46px; }
 
-    .lodge-legend { padding: 26px 22px 0; gap: 10px 20px; font-size: 10px; }
-    .lodgings { grid-template-columns: 1fr; gap: 40px; padding: 34px 22px 0; }
-    .lodge-photo .ph, .lodge-photo img { height: 210px; }
-    .lodge-name { font-size: 24px; }
+    .lodge-table-wrap { padding: 34px 22px 0; }
+    .lodge-city-name { font-size: 21px; }
+    .lodge-table { table-layout: auto; }
+    .lodge-table tr { display: block; padding: 18px 0; border-bottom: 1px solid var(--sand); }
+    .lodge-table tr:last-child { border-bottom: none; }
+    .lodge-table td { display: block; width: auto !important; padding: 3px 0; border-bottom: none; font-size: 17px; }
+    .lodge-table .lodge-name { font-weight: 500; }
+    .lodge-table .lodge-address { color: var(--muted); }
+    .lodge-table .lodge-links { flex-direction: row; gap: 6px 20px; margin-top: 8px; }
     .lodge-foot { padding: 44px 22px 64px; font-size: 18px; }
   }
 </style>
@@ -726,17 +716,10 @@
     <p class="dek">Quelques chambres sont réservées au domaine et dans les gîtes alentour. Mentionnez le mariage Maÿlis &amp; Alexis en réservant.</p>
   </div>
 
-  <div class="lodge-legend" aria-hidden="true">
-    <span>Disponible</span>
-    <span class="s-peu">Dernières places</span>
-    <span class="s-complet">Complet</span>
-  </div>
-
-  <div class="lodgings" id="lodgings"></div>
+  <div class="lodge-table-wrap" id="lodgings"></div>
 
   <div class="lodge-foot">
     La campagne est jolie mais peu desservie : pensez au covoiturage.
-    <div class="hint">disponibilités mises à jour par nos soins</div>
   </div>
 </section>
 
@@ -801,17 +784,14 @@
   setInterval(tickCountdown, 60000);
 
   /* ---------- hébergements ----------
-     Une entrée par hébergement. status : "dispo" | "peu" | "complet".
-     Pour un suivi en direct sans toucher au code, publier un Google Sheet en CSV
-     (colonnes : nom, statut) et coller son adresse dans SHEET_CSV_URL. */
-  var SHEET_CSV_URL = '';
+     Une entrée par hébergement, regroupée et triée par ville.
+     Supprimer une entrée ici quand un hébergement est complet. */
   var LODGINGS = [
-    { name: 'Maison de campagne avec sauna, fitness et jardin', type: 'Maison entière · Airbnb', distance: 'Villeneuve-l\u2019Archevêque', price: '', capacity: '10 voyageurs · 4 chambres', address: 'Villeneuve-l\u2019Archevêque', url: 'https://www.airbnb.fr/rooms/34205232?check_in=2027-07-29&check_out=2027-07-31&guests=10&adults=10', photo: '', status: 'dispo' },
-    { name: 'Hébergement n° 2', type: 'Gîte', distance: 'À compléter · distance du domaine', price: 'À compléter · tarif', capacity: 'À compléter · capacité', address: 'À compléter', url: '', photo: '', status: 'peu' },
-    { name: 'Hébergement n° 3', type: 'Hôtel', distance: 'À compléter · distance du domaine', price: 'À compléter · tarif', capacity: 'À compléter · capacité', address: 'À compléter', url: '', photo: '', status: 'complet' }
+    { name: 'Maison de campagne avec sauna, fitness et jardin', ville: 'Villeneuve-l\u2019Archevêque', address: 'Villeneuve-l\u2019Archevêque', url: 'https://www.airbnb.fr/rooms/34205232?check_in=2027-07-29&check_out=2027-07-31&guests=10&adults=10' },
+    { name: 'Hébergement n° 2', ville: 'À compléter', address: 'À compléter', url: '' },
+    { name: 'Hébergement n° 3', ville: 'À compléter', address: 'À compléter', url: '' }
   ];
-  var STATUS_LABEL = { dispo: 'Disponible', peu: 'Dernières places', complet: 'Complet' };
-  var lodgeGrid = document.getElementById('lodgings');
+  var lodgeWrap = document.getElementById('lodgings');
 
   function el(tag, cls, text) {
     var n = document.createElement(tag);
@@ -824,101 +804,31 @@
     a.href = href; a.target = '_blank'; a.rel = 'noopener noreferrer';
     return a;
   }
-  function setStatus(card, status) {
-    if (!STATUS_LABEL[status]) status = 'dispo';
-    card.setAttribute('data-status', status);
-    card.querySelector('.lodge-badge').textContent = STATUS_LABEL[status];
-  }
 
+  var byVille = {};
   LODGINGS.forEach(function (l) {
-    var card = el('article', 'lodge');
-    card.setAttribute('data-name', l.name.toLowerCase());
-
-    var photo = el('div', 'lodge-photo');
-    if (l.photo) {
-      var img = el('img'); img.src = l.photo; img.alt = l.name; img.loading = 'lazy';
-      photo.appendChild(img);
-    } else {
-      var ph = el('div', 'ph center'); ph.appendChild(el('span', '', 'photo — ' + l.name));
-      photo.appendChild(ph);
-    }
-    photo.appendChild(el('div', 'lodge-badge'));
-
-    var body = el('div', 'lodge-body');
-    body.appendChild(el('div', 'lodge-type', l.type));
-    body.appendChild(el('div', 'lodge-name', l.name));
-    body.appendChild(el('div', 'lodge-meta', [l.distance, l.capacity, l.price].filter(Boolean).join(' · ')));
-    var actions = el('div', 'lodge-actions');
-    actions.appendChild(extLink('Ouvrir dans Maps ↗', 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(l.address || l.name)));
-    if (l.url) actions.appendChild(extLink('Voir / réserver →', l.url));
-    body.appendChild(actions);
-
-    card.appendChild(photo); card.appendChild(body);
-    setStatus(card, l.status);
-    lodgeGrid.appendChild(card);
+    (byVille[l.ville] = byVille[l.ville] || []).push(l);
   });
+  Object.keys(byVille).sort(function (a, b) { return a.localeCompare(b, 'fr'); }).forEach(function (ville) {
+    var group = el('div', 'lodge-city');
+    group.appendChild(el('h2', 'lodge-city-name', ville));
 
-  // suivi en direct : le Google Sheet publié en CSV écrase le statut de chaque hébergement (repéré par son nom)
-  function parseCsv(text) {
-    var rows = [], row = [], cell = '', quoted = false;
-    for (var i = 0; i < text.length; i++) {
-      var c = text[i];
-      if (quoted) {
-        if (c === '"' && text[i + 1] === '"') { cell += '"'; i++; }
-        else if (c === '"') quoted = false;
-        else cell += c;
-      } else if (c === '"') quoted = true;
-      else if (c === ',') { row.push(cell); cell = ''; }
-      else if (c === '\n' || c === '\r') {
-        if (c === '\r' && text[i + 1] === '\n') i++;
-        row.push(cell); rows.push(row); row = []; cell = '';
-      } else cell += c;
-    }
-    if (cell || row.length) { row.push(cell); rows.push(row); }
-    return rows;
-  }
-  function normalizeStatus(raw) {
-    var s = raw.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
-    if (/complet|pris|plein|indispo/.test(s)) return 'complet';
-    if (/derni|peu|limit/.test(s)) return 'peu';
-    if (/dispo|libre/.test(s)) return 'dispo';
-    return null;
-  }
-  function cardByName(name) {
-    return lodgeGrid.querySelector('.lodge[data-name="' + name.trim().toLowerCase().replace(/"/g, '\\"') + '"]');
-  }
-  // statuts calculés toutes les heures à partir des calendriers iCal (voir .github/workflows/disponibilites.yml)
-  function applyCalendarStatuses() {
-    return fetch('disponibilites.json', { cache: 'no-store' })
-      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-      .then(function (data) {
-        Object.keys(data.statuts || {}).forEach(function (name) {
-          var card = cardByName(name);
-          if (card) setStatus(card, data.statuts[name]);
-        });
-      })
-      .catch(function () { /* fichier absent ou illisible : on garde les statuts de la page */ });
-  }
-  function refreshStatuses() {
-    // le tableur (saisie manuelle) passe en dernier : il a le dernier mot
-    applyCalendarStatuses().then(applySheetStatuses);
-  }
-  function applySheetStatuses() {
-    if (!SHEET_CSV_URL) return;
-    return fetch(SHEET_CSV_URL, { cache: 'no-store' })
-      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
-      .then(function (text) {
-        parseCsv(text).forEach(function (row) {
-          var status = row[1] && normalizeStatus(row[1]);
-          if (!row[0] || !status) return;
-          var card = row[0] && cardByName(row[0]);
-          if (card) setStatus(card, status);
-        });
-      })
-      .catch(function () { /* en cas d'échec, on garde les statuts écrits dans la page */ });
-  }
-  refreshStatuses();
-  setInterval(refreshStatuses, 120000);
+    var table = el('table', 'lodge-table');
+    var tbody = el('tbody');
+    byVille[ville].forEach(function (l) {
+      var tr = el('tr');
+      tr.appendChild(el('td', 'lodge-name', l.name));
+      tr.appendChild(el('td', 'lodge-address', l.address));
+      var tdLinks = el('td', 'lodge-links');
+      tdLinks.appendChild(extLink('Maps \u2197', 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(l.address || l.name)));
+      if (l.url) tdLinks.appendChild(extLink('R\u00e9server \u2192', l.url));
+      tr.appendChild(tdLinks);
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    group.appendChild(table);
+    lodgeWrap.appendChild(group);
+  });
 
   /* ---------- apparition au défilement ---------- */
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -951,8 +861,8 @@
     mark('.gallery3 .ph', 'rv', 120);
     mark('.steps3 > div', 'rv', 140);
 
-    mark('.lodge-legend, .lodge-foot', 'rv');
-    mark('.lodge', 'rv', 120);
+    mark('.lodge-foot', 'rv');
+    mark('.lodge-city', 'rv', 140);
 
     var observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
