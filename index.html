@@ -248,6 +248,9 @@
   .t-grid { display: grid; grid-template-columns: 104px 1px minmax(0,1fr); gap: 0 28px; }
   .t-time { text-align: right; padding: 0 0 36px; font: 400 25px/1.2 var(--f); color: var(--acc); }
   .t-time.last { color: var(--ink); }
+  .blur { filter: blur(6px); user-select: none; pointer-events: none; }
+  .t-time.blur { filter: blur(7px); user-select: none; pointer-events: none; }
+  .t-note { max-width: 760px; margin: 38px auto 0; padding: 0 56px; text-align: center; font: italic 400 19px/1.6 var(--f); color: var(--muted); }
   .t-axis { position: relative; }
   .t-axis::before { content: ""; position: absolute; inset: 0; background: var(--line); transform-origin: top; }
   .t-axis span { position: absolute; z-index: 1; top: 9px; left: -3.5px; width: 8px; height: 8px; border-radius: 50%; background: var(--ink); }
@@ -450,6 +453,7 @@
     .page-head .dek { font-size: 18px; }
 
     .timeline { padding: 40px 22px 0; }
+    .t-note { padding: 0 22px; margin-top: 28px; font-size: 17px; }
     .t-grid { grid-template-columns: 72px 1px minmax(0,1fr); gap: 0 18px; }
     .t-time { font-size: 20px; }
     .t-title { font-size: 23px; }
@@ -562,7 +566,7 @@
     <div class="field">
       <div class="kicker">Quand</div>
       <div class="title">Vendredi 30 juillet 2027</div>
-      <div class="detail">Cérémonie 15h30 · Cocktail 18h<br>Dîner 21h30</div>
+      <div class="detail">Cérémonie <span class="blur" aria-hidden="true">00h00</span> · Cocktail <span class="blur" aria-hidden="true">00h00</span><br>Dîner <span class="blur" aria-hidden="true">00h00</span></div>
       <div class="field-links">
         <a class="link-u" href="#" data-goto="jourj">Tous les détails +</a>
       </div>
@@ -614,43 +618,38 @@
     <p class="dek">Tout se passe entre Villeneuve-l'Archevêque et le Domaine de Vauluisant, à huit minutes de route l'un de l'autre.</p>
   </div>
 
+  <p class="t-note">Les horaires exacts vous seront communiqués prochainement.</p>
+
   <div class="timeline">
     <div class="t-grid">
-      <div class="t-time">15h30</div>
+      <div class="t-time blur" aria-hidden="true">00h00</div>
       <div class="t-axis"><span></span></div>
       <div class="t-body">
         <div class="t-title">Cérémonie religieuse</div>
-        <div class="t-desc">Église Notre-Dame-de-l'Assomption, place de l'Église. Arrivez vers 15h10, pour ne pas être en retard.</div>
+        <div class="t-desc">Église Notre-Dame-de-l'Assomption, place de l'Église. Prévoyez d'arriver un peu en avance.</div>
         <a class="link-u sm t-map" href="https://www.google.com/maps/search/?api=1&amp;query=%C3%89glise+Notre-Dame-de-l%27Assomption%2C+Villeneuve-l%27Archev%C3%AAque" target="_blank" rel="noopener noreferrer">Ouvrir dans Maps ↗</a>
       </div>
 
-      <div class="t-time">18h</div>
+      <div class="t-time blur" aria-hidden="true">00h00</div>
       <div class="t-axis"><span></span></div>
       <div class="t-body">
         <div class="t-title">Cocktail dans le parc du domaine</div>
-        <div class="t-desc">Domaine de Vauluisant. Pelouse et gravier : talons fins déconseillés.</div>
+        <div class="t-desc">Domaine de Vauluisant. On trinque en plein air, dans le parc : pensez à une petite laine pour la fin de soirée.</div>
         <a class="link-u sm t-map" href="https://www.google.com/maps/search/?api=1&amp;query=Domaine+de+Vauluisant%2C+Courgenay" target="_blank" rel="noopener noreferrer">Ouvrir dans Maps ↗</a>
       </div>
 
-      <div class="t-time">21h30</div>
+      <div class="t-time blur" aria-hidden="true">00h00</div>
       <div class="t-axis"><span></span></div>
       <div class="t-body">
         <div class="t-title">Dîner champêtre</div>
-        <div class="t-desc">Plan de table à l'entrée. Allergies et régimes : dites-le-nous avant le 1er juin.</div>
+        <div class="t-desc">Le plan de table vous attend à l'entrée.</div>
       </div>
 
-      <div class="t-time">23h30</div>
-      <div class="t-axis"><span></span></div>
-      <div class="t-body">
-        <div class="t-title">Soirée</div>
-        <div class="t-desc">Des navettes seront à votre disposition pour revenir à vos logements.</div>
-      </div>
-
-      <div class="t-time last">12h</div>
+      <div class="t-time last blur" aria-hidden="true">00h00</div>
       <div class="t-axis last"><span></span></div>
       <div class="t-body last">
-        <div class="t-title">Brunch, samedi</div>
-        <div class="t-desc">Au domaine, à partir de midi. On arrive et on repart quand on veut.</div>
+        <div class="t-title">Soirée</div>
+        <div class="t-desc">Place à la fête, jusqu'au bout de la nuit.</div>
       </div>
     </div>
   </div>
@@ -663,7 +662,7 @@
           <iframe title="Carte : Église Notre-Dame-de-l'Assomption, Villeneuve-l'Archevêque" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen
             src="https://www.google.com/maps?q=%C3%89glise+Notre-Dame-de-l%27Assomption%2C+Villeneuve-l%27Archev%C3%AAque&amp;hl=fr&amp;z=15&amp;output=embed"></iframe>
         </div>
-        <div class="kicker">Cérémonie · 15h30</div>
+        <div class="kicker">Cérémonie · <span class="blur" aria-hidden="true">00h00</span></div>
         <div class="addr-name">Église Notre-Dame-de-l'Assomption</div>
         <div class="addr-line">Place de l'Église, 89190 Villeneuve-l'Archevêque · stationnement sur la place et dans les rues adjacentes</div>
         <div class="map-actions">
@@ -677,7 +676,7 @@
           <iframe title="Carte : Domaine de Vauluisant, Courgenay" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen
             src="https://www.google.com/maps?q=Domaine+de+Vauluisant%2C+Courgenay&amp;hl=fr&amp;z=14&amp;output=embed"></iframe>
         </div>
-        <div class="kicker">Cocktail, dîner &amp; brunch · dès 18h</div>
+        <div class="kicker">Cocktail &amp; dîner · dès <span class="blur" aria-hidden="true">00h00</span></div>
         <div class="addr-name">Domaine de Vauluisant</div>
         <div class="addr-line">89320 Courgenay · parking fléché à l'entrée du domaine</div>
         <div class="map-actions">
@@ -698,7 +697,7 @@
     <div class="access-grid">
       <div>
         <div class="a-title">En voiture</div>
-        <div class="a-detail">Depuis Paris, comptez environ 1h30 de route (138 km), principalement par l'A5.<br>Parking gratuit à l'église et au domaine.</div>
+        <div class="a-detail">Depuis Paris, comptez environ 1h30 de route (138 km), principalement par l'A5.<br>Depuis les Petites-Dalles (Normandie), comptez environ 3h30 à 4h de route (340 km).<br>Parking gratuit à l'église et au domaine.</div>
       </div>
       <div>
         <div class="a-title">En train</div>
