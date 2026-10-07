@@ -288,8 +288,11 @@
 
   .gallery3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 20px; padding: 60px 56px 0; }
   .gallery3 .ph { height: 230px; }
+  .g-item { display: block; overflow: hidden; }
+  .g-item .ph { display: block; transition: transform .6s ease; }
+  .g-item:hover .ph, .g-item:focus-visible .ph { transform: scale(1.04); }
 
-  .steps3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 40px; margin: 64px auto 0; padding: 64px 56px; text-align: center; }
+  .steps3 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 40px; margin: 64px auto 0; padding: 64px 56px; text-align: center; }
   .step-num { font: 400 11px/1 var(--fj); letter-spacing: .24em; text-transform: uppercase; color: var(--ink); }
   .step-title { margin-top: 10px; color: var(--ink); font: 500 22px/1.26 var(--f); }
   .step-body { font: 400 18px/1.68 var(--f); color: var(--muted); margin-top: 6px; }
@@ -587,7 +590,7 @@
     <div class="text">
       <div class="kicker">Hébergements</div>
       <div class="title">Dormir près du domaine</div>
-      <p class="body">De nombreux logements se trouvent à proximité du domaine. Des navettes vous ramèneront à votre hébergement en fin de soirée ; s'il est à plus de 25 minutes du domaine, prévoyez plutôt un taxi.</p>
+      <p class="body">De nombreux logements se trouvent à proximité du domaine ; nous vous conseillons de prévoir deux nuits, en arrivant dès le jeudi soir. Des navettes vous ramèneront à votre hébergement en fin de soirée ; s'il est à plus de 25 minutes du domaine, prévoyez plutôt un taxi.</p>
       <a class="link-u" href="#" data-goto="hebergements">Voir la liste des hébergements +</a>
     </div>
   </div>
@@ -715,33 +718,28 @@
 <section data-view="liste" hidden>
   <div class="liste-head">
     <div class="flanked cap"><span class="rule"></span>Liste de mariage<span class="rule"></span></div>
-    <h1>Votre présence<br>nous suffit</h1>
-    <p>Mais si le cœur vous en dit, notre liste est ouverte chez <em>Mille Mercis Mariage</em> : une cagnotte pour notre voyage de noces, quelques envies pour la maison, et la liberté de participer comme vous le souhaitez.</p>
+    <h1>Votre présence<br>est notre plus beau cadeau</h1>
+    <p>Mais si le cœur vous en dit, notre liste est ouverte chez <em>Mille Mercis Mariage</em> : une cagnotte pour notre voyage de noces et quelques envies pour la maison.</p>
     <a class="btn" href="https://www.millemercismariage.com/maylisditouiaalexis/liste.html" target="_blank" rel="noopener noreferrer">Voir notre liste →</a>
     <div class="hint">nouvel onglet · millemercismariage.com</div>
   </div>
 
   <div class="gallery3">
-    <div class="ph"><span>cagnotte voyage</span></div>
-    <div class="ph"><span>pour la maison</span></div>
-    <div class="ph"><span>montant libre</span></div>
+    <a class="g-item" href="https://www.millemercismariage.com/maylisditouiaalexis/liste.html" target="_blank" rel="noopener noreferrer"><img class="ph" src="images/liste-voyage.webp" alt="Cagnotte voyage de noces : voir notre liste" width="800" height="520" loading="lazy"></a>
+    <a class="g-item" href="https://www.millemercismariage.com/maylisditouiaalexis/liste.html" target="_blank" rel="noopener noreferrer"><img class="ph" src="images/liste-maison.webp" alt="Quelques envies pour la maison : voir notre liste" width="800" height="520" loading="lazy"></a>
+    <a class="g-item" href="https://www.millemercismariage.com/maylisditouiaalexis/liste.html" target="_blank" rel="noopener noreferrer"><img class="ph" src="images/liste-libre.webp" alt="Montant libre : voir notre liste" width="800" height="520" loading="lazy"></a>
   </div>
 
   <div class="steps3 band">
     <div>
       <div class="step-num">1</div>
-      <div class="step-title">Cliquez sur le bouton</div>
-      <div class="step-body">Vous arrivez directement sur notre liste.</div>
+      <div class="step-title">Choisissez ce qui vous plaît</div>
+      <div class="step-body">Cliquez sur le bouton pour accéder à notre liste : cagnotte voyage, maison, ou montant libre.</div>
     </div>
     <div>
       <div class="step-num">2</div>
-      <div class="step-title">Choisissez ce qui vous plaît</div>
-      <div class="step-body">Cagnotte voyage, maison, ou montant libre.</div>
-    </div>
-    <div>
-      <div class="step-num">3</div>
       <div class="step-title">Laissez-nous un mot</div>
-      <div class="step-body">Il arrive avec votre participation, on adore ça.</div>
+      <div class="step-body">Il nous parviendra avec votre participation, ça nous fera très plaisir.</div>
     </div>
   </div>
 </section>
@@ -751,19 +749,19 @@
   <div class="page-head">
     <div class="flanked cap"><span class="rule"></span>Hébergements<span class="rule"></span></div>
     <h1>Dormir près du domaine</h1>
-    <p class="dek">Quelques chambres sont réservées au domaine et dans les gîtes alentour, classés du plus proche au plus éloigné du domaine.</p>
+    <p class="dek">Voici une sélection d'hébergements autour du domaine, classés du plus proche au plus éloigné. Le mariage a lieu un vendredi : pour profiter de la région et aborder la journée sereinement, nous vous conseillons de prendre deux nuits, en arrivant dès le jeudi soir.</p>
   </div>
 
   <div class="lodge-map-wrap">
     <div class="lodge-map" id="lodge-map"></div>
     <div class="lodge-map-panel" id="lodge-map-panel" aria-live="polite"></div>
-    <p class="lodge-map-note">Schéma : chaque village est placé dans sa direction réelle, à sa distance par la route du domaine (un cercle tous les 5 km).</p>
+    <p class="lodge-map-note">Chaque village est placé dans sa direction, à sa distance par la route du domaine (un cercle tous les 5 km).</p>
   </div>
 
   <div class="lodge-table-wrap" id="lodgings"></div>
 
   <div class="lodge-foot">
-    La campagne est jolie mais peu desservie : pensez au covoiturage.
+    Des navettes vous ramèneront à votre hébergement en fin de soirée ; au-delà de 25 minutes du domaine, prévoyez plutôt un taxi.<br>La campagne est jolie mais peu desservie : pensez aussi au covoiturage.
   </div>
 </section>
 
@@ -856,7 +854,7 @@
     { name: 'Le Saule Fleuri', ville: 'Vulaines', tel: '03 25 40 80 99' },
     { name: 'Marie-Fran\u00e7oise Claret', ville: 'Les Si\u00e8ges', address: 'Les Si\u00e8ges', tel: '06 70 02 35 30' },
     { name: 'Fr\u00e9d\u00e9ric Agid', ville: 'Villeneuve-l\u2019Archev\u00eaque', address: 'Villeneuve-l\u2019Archev\u00eaque', tel: '06 13 08 46 97' },
-    { name: 'Chez Patrick & Dani\u00e8le Piotrowski', ville: 'Voisines', address: 'Voisines', tel: '06 77 87 13 02', email: 'patrick.leruy89@gmail.com' }
+    { name: 'Les Flor\u00e9ales \u2013 chambre d\u2019h\u00f4tes', ville: 'Voisines', address: 'Voisines', note: 'Patrick & Dani\u00e8le \u00b7 2 personnes', tel: '06 77 87 13 02', email: 'patrick.leruy89@gmail.com' }
   ];
   /* Par village : [distance routière en km, minutes, longitude, latitude] depuis le Domaine de Vauluisant.
      Longitude et latitude servent seulement à placer le village dans la bonne direction sur la carte. */
@@ -1138,7 +1136,7 @@
     mark('.access-grid > div', 'rv', 140);
 
     mark('.liste-head > *', 'rv', 110);
-    mark('.gallery3 .ph', 'rv', 120);
+    mark('.gallery3 .g-item', 'rv', 120);
     mark('.steps3 > div', 'rv', 140);
 
     mark('.lodge-foot', 'rv');
