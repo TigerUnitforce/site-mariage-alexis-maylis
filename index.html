@@ -295,12 +295,14 @@
   .lodge-table-wrap { max-width: 860px; margin: 0 auto; padding: 50px 56px 0; }
   .lodge-city { margin-top: 52px; }
   .lodge-city:first-child { margin-top: 0; }
-  .lodge-city-name { font: 500 25px/1.2 var(--f); color: var(--disp); border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+  .lodge-city-name { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 20px; font: 500 25px/1.2 var(--f); color: var(--disp); border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+  .lodge-dist { font: 400 17px/1.2 var(--f); color: var(--muted); white-space: nowrap; }
   .lodge-table { width: 100%; border-collapse: collapse; margin-top: 18px; table-layout: fixed; }
   .lodge-table td { padding: 16px 16px 16px 0; font: 400 18px/1.5 var(--f); color: var(--ink); border-bottom: 1px solid var(--sand); vertical-align: top; }
   .lodge-table tr:last-child td { border-bottom: none; }
-  .lodge-table .lodge-name { width: 42%; }
-  .lodge-table .lodge-address { width: 33%; }
+  .lodge-table .lodge-name { width: 38%; }
+  .lodge-table .lodge-contact { width: 37%; overflow-wrap: anywhere; }
+  .lodge-table .lodge-contact > * { display: block; width: fit-content; }
   .lodge-table .lodge-links { width: 25%; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
   .lodge-foot { max-width: 640px; margin: 0 auto; padding: 64px 56px 96px; text-align: center; font: 400 19px/1.7 var(--f); color: var(--muted); }
 
@@ -440,12 +442,13 @@
 
     .lodge-table-wrap { padding: 34px 22px 0; }
     .lodge-city-name { font-size: 21px; }
+    .lodge-dist { font-size: 16px; }
     .lodge-table { table-layout: auto; }
     .lodge-table tr { display: block; padding: 18px 0; border-bottom: 1px solid var(--sand); }
     .lodge-table tr:last-child { border-bottom: none; }
     .lodge-table td { display: block; width: auto !important; padding: 3px 0; border-bottom: none; font-size: 17px; }
     .lodge-table .lodge-name { font-weight: 500; }
-    .lodge-table .lodge-address { color: var(--muted); }
+    .lodge-table .lodge-contact { color: var(--muted); }
     .lodge-table .lodge-links { flex-direction: row; gap: 6px 20px; margin-top: 8px; }
     .lodge-foot { padding: 44px 22px 64px; font-size: 18px; }
   }
@@ -713,7 +716,7 @@
   <div class="page-head">
     <div class="flanked cap"><span class="rule"></span>Hébergements<span class="rule"></span></div>
     <h1>Dormir près du domaine</h1>
-    <p class="dek">Quelques chambres sont réservées au domaine et dans les gîtes alentour.</p>
+    <p class="dek">Quelques chambres sont réservées au domaine et dans les gîtes alentour, classés du plus proche au plus éloigné du domaine.</p>
   </div>
 
   <div class="lodge-table-wrap" id="lodgings"></div>
@@ -787,10 +790,56 @@
      Une entrée par hébergement, regroupée et triée par ville.
      Supprimer une entrée ici quand un hébergement est complet. */
   var LODGINGS = [
-    { name: 'Maison de campagne avec sauna, fitness et jardin', ville: 'Villeneuve-l\u2019Archevêque', address: 'Villeneuve-l\u2019Archevêque', url: 'https://www.airbnb.fr/rooms/34205232?check_in=2027-07-29&check_out=2027-07-31&guests=10&adults=10' },
-    { name: 'Hébergement n° 2', ville: 'À compléter', address: 'À compléter', url: '' },
-    { name: 'Hébergement n° 3', ville: 'À compléter', address: 'À compléter', url: '' }
+    { name: 'Maison de campagne avec sauna, fitness et jardin', ville: 'Villeneuve-l\u2019Archev\u00eaque', address: 'Villeneuve-l\u2019Archev\u00eaque', note: 'Via Airbnb', url: 'https://www.airbnb.fr/rooms/34205232?check_in=2027-07-29&check_out=2027-07-31&guests=10&adults=10' },
+    { name: 'Villa Cl\u00e9ment \u2013 Apart\u2019H\u00f4tel', ville: 'Saint-Cl\u00e9ment', tel: '06 16 16 11 97', site: 'https://www.villaclement.fr' },
+    { name: 'La Merlette', ville: 'Lailly', tel: '06 04 02 96 95' },
+    { name: 'Le g\u00eete de Lailly', ville: 'Lailly', email: 'gitelailly89@laposte.net' },
+    { name: 'Le G\u00eete du petit ch\u00e2teau', ville: 'Courgenay', tel: '06 71 46 81 20' },
+    { name: 'Auberge des vieux moulins banaux', ville: 'Villeneuve-l\u2019Archev\u00eaque', tel: '03 86 86 72 55' },
+    { name: 'Au 24', ville: 'Villiers-Louis', tel: '08 90 21 19 54' },
+    { name: 'Les petites maisons en bois', ville: 'Paisy-Cosdon', tel: '06 60 81 72 81' },
+    { name: 'Le Betrot', ville: 'Estissac', tel: '03 25 41 59 85' },
+    { name: 'Maisonnette 1780', ville: 'Vaudeurs', note: 'Via Airbnb' },
+    { name: 'Atelier des sens', ville: '\u00c9vry', tel: '07 49 28 13 28' },
+    { name: 'Aur\u00e9lia et Ambroise Gram Fabre', ville: 'Rigny-le-Ferron', address: 'Rigny-le-Ferron', tel: '06 52 19 54 63' },
+    { name: 'Villa Campagne', ville: 'Cerisiers', tel: '06 01 07 14 39' },
+    { name: 'Campagne et For\u00eat', ville: 'Coulours', tel: '06 66 50 74 32' },
+    { name: 'La petite maison de la ferme', ville: 'Saint-Benoist-sur-Vanne', note: 'Via Airbnb' },
+    { name: 'La petite maison de la ferme d\u2019Armenti\u00e8res', ville: 'Saint-Benoist-sur-Vanne', tel: '07 83 73 71 02' },
+    { name: 'Chez Augustin', ville: 'B\u00e9rulle', address: 'B\u00e9rulle', tel: '06 72 74 48 53' },
+    { name: 'Week-end au vert', ville: 'Voisines', note: 'Via Airbnb' },
+    { name: 'Maison de village de Charme', ville: 'Voisines', address: 'Voisines', note: 'Pierre-Luc Couac \u00b7 groupes uniquement', tel: '06 13 12 42 29' },
+    { name: 'Quiet Voisines', ville: 'Voisines', note: '2 personnes minimum', tel: '06 60 04 58 95' },
+    { name: 'Le duplex', ville: 'Villiers-Louis', note: 'Via Airbnb' },
+    { name: 'G\u00eete \u2013 Les trois fr\u00e8res', ville: 'Paisy-Cosdon', tel: '06 95 53 05 30' },
+    { name: 'G\u00eete \u2013 La Melinothe', ville: 'Estissac', tel: '06 45 44 06 24' },
+    { name: 'G\u00eete \u2013 Le domaine des f\u00e9es', ville: 'Rigny-la-Nonneuse', tel: '03 25 25 11 92' },
+    { name: 'Le Saule Fleuri', ville: 'Vulaines', tel: '03 25 40 80 99' },
+    { name: 'Marie-Fran\u00e7oise Claret', ville: 'Les Si\u00e8ges', address: 'Les Si\u00e8ges', tel: '06 70 02 35 30' },
+    { name: 'Fr\u00e9d\u00e9ric Agid', ville: 'Villeneuve-l\u2019Archev\u00eaque', address: 'Villeneuve-l\u2019Archev\u00eaque', tel: '06 13 08 46 97' },
+    { name: 'Chez Patrick & Dani\u00e8le Piotrowski', ville: 'Voisines', address: 'Voisines', tel: '06 77 87 13 02', email: 'patrick.leruy89@gmail.com' }
   ];
+  /* Distance routière [km, minutes] de chaque village au Domaine de Vauluisant. */
+  var DIST = {
+    'Lailly': [2.8, 3],
+    'Courgenay': [2.8, 4],
+    'Villeneuve-l\u2019Archev\u00eaque': [5.7, 7],
+    'Vulaines': [10.4, 12],
+    'Les Si\u00e8ges': [12.2, 16],
+    'Rigny-le-Ferron': [13.7, 15],
+    'Saint-Benoist-sur-Vanne': [14.0, 15],
+    'Voisines': [15.0, 16],
+    'Coulours': [15.1, 17],
+    'Villiers-Louis': [16.7, 17],
+    'Paisy-Cosdon': [18.1, 19],
+    'Vaudeurs': [18.2, 22],
+    'B\u00e9rulle': [19.2, 25],
+    'Cerisiers': [19.5, 22],
+    'Rigny-la-Nonneuse': [21.2, 24],
+    'Saint-Cl\u00e9ment': [25.3, 26],
+    'Estissac': [25.6, 27],
+    '\u00c9vry': [25.9, 29]
+  };
   var lodgeWrap = document.getElementById('lodgings');
 
   function el(tag, cls, text) {
@@ -809,18 +858,40 @@
   LODGINGS.forEach(function (l) {
     (byVille[l.ville] = byVille[l.ville] || []).push(l);
   });
-  Object.keys(byVille).sort(function (a, b) { return a.localeCompare(b, 'fr'); }).forEach(function (ville) {
+  function dist(v) { return DIST[v] || [Infinity, Infinity]; }
+  Object.keys(byVille).sort(function (a, b) {
+    return dist(a)[0] - dist(b)[0] || dist(a)[1] - dist(b)[1] || a.localeCompare(b, 'fr');
+  }).forEach(function (ville) {
     var group = el('div', 'lodge-city');
-    group.appendChild(el('h2', 'lodge-city-name', ville));
+    var head = el('h2', 'lodge-city-name', ville);
+    if (DIST[ville]) {
+      var km = DIST[ville][0];
+      var kmTxt = (km < 10 ? km.toFixed(1) : String(Math.round(km))).replace('.', ',');
+      head.appendChild(el('span', 'lodge-dist', kmTxt + ' km \u00b7 ' + DIST[ville][1] + ' min en voiture'));
+    }
+    group.appendChild(head);
 
     var table = el('table', 'lodge-table');
     var tbody = el('tbody');
     byVille[ville].forEach(function (l) {
       var tr = el('tr');
       tr.appendChild(el('td', 'lodge-name', l.name));
-      tr.appendChild(el('td', 'lodge-address', l.address));
+      var tdContact = el('td', 'lodge-contact');
+      if (l.tel) {
+        var tel = el('a', 'link-u sm', l.tel);
+        tel.href = 'tel:+33' + l.tel.replace(/\s/g, '').slice(1);
+        tdContact.appendChild(tel);
+      }
+      if (l.email) {
+        var mail = el('a', 'link-u sm', l.email);
+        mail.href = 'mailto:' + l.email;
+        tdContact.appendChild(mail);
+      }
+      if (l.note) tdContact.appendChild(el('span', '', l.note));
+      tr.appendChild(tdContact);
       var tdLinks = el('td', 'lodge-links');
-      tdLinks.appendChild(extLink('Maps \u2197', 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(l.address || l.name)));
+      tdLinks.appendChild(extLink('Maps \u2197', 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(l.address || l.name + ', ' + l.ville)));
+      if (l.site) tdLinks.appendChild(extLink('Site \u2197', l.site));
       if (l.url) tdLinks.appendChild(extLink('R\u00e9server \u2192', l.url));
       tr.appendChild(tdLinks);
       tbody.appendChild(tr);

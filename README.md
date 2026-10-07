@@ -45,7 +45,7 @@ La mise en ligne prend en général une à deux minutes. En cas de doute sur ce 
 
 ## Liste des hébergements
 
-La page « Hébergements » affiche un simple tableau (nom, adresse, liens) regroupé par ville, construit à partir du tableau `LODGINGS` dans `index.html` (bloc `<script>` juste après la section Hébergements). Pas de suivi de disponibilité automatique : quand un logement est complet, supprimer directement son entrée dans `LODGINGS`.
+La page « Hébergements » affiche un simple tableau (nom, adresse, liens) regroupé par ville (du plus proche au plus éloigné du domaine), construit à partir du tableau `LODGINGS` dans `index.html` (bloc `<script>` juste après la section Hébergements). Pas de suivi de disponibilité automatique : quand un logement est complet, supprimer directement son entrée dans `LODGINGS`. Les distances routières au domaine sont dans le tableau `DIST` (une entrée par village : km et minutes) ; un nouveau village sans entrée dans `DIST` s'affiche en dernier, sans distance.
 
 ## Mot de passe d'accès
 
