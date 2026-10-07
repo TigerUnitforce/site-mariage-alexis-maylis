@@ -45,7 +45,7 @@ La mise en ligne prend en général une à deux minutes. En cas de doute sur ce 
 
 ## Liste des hébergements
 
-La page « Hébergements » affiche un simple tableau (nom, adresse, liens) regroupé par ville (du plus proche au plus éloigné du domaine), construit à partir du tableau `LODGINGS` dans `index.html` (bloc `<script>` juste après la section Hébergements). Pas de suivi de disponibilité automatique : quand un logement est complet, supprimer directement son entrée dans `LODGINGS`. Les distances routières au domaine sont dans le tableau `DIST` (une entrée par village : km et minutes) ; un nouveau village sans entrée dans `DIST` s'affiche en dernier, sans distance.
+La page « Hébergements » affiche un simple tableau (nom, adresse, liens) regroupé par ville (du plus proche au plus éloigné du domaine), construit à partir du tableau `LODGINGS` dans `index.html` (bloc `<script>` juste après la section Hébergements). Pas de suivi de disponibilité automatique : quand un logement est complet, supprimer directement son entrée dans `LODGINGS`. Les distances routières au domaine sont dans le tableau `DIST` (une entrée par village : km, minutes, longitude, latitude) ; la longitude et la latitude servent à placer le village dans la bonne direction sur la carte interactive en haut de la page (domaine au centre, un cercle tous les 5 km, clic sur un village pour voir ses hébergements). Un nouveau village sans entrée dans `DIST` s'affiche en dernier du tableau et n'apparaît pas sur la carte.
 
 ## Mot de passe d'accès
 

@@ -293,7 +293,7 @@
 
   /* ---------- HÉBERGEMENTS ---------- */
   .lodge-table-wrap { max-width: 860px; margin: 0 auto; padding: 50px 56px 0; }
-  .lodge-city { margin-top: 52px; }
+  .lodge-city { margin-top: 52px; scroll-margin-top: 90px; }
   .lodge-city:first-child { margin-top: 0; }
   .lodge-city-name { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 20px; font: 500 25px/1.2 var(--f); color: var(--disp); border-bottom: 1px solid var(--line); padding-bottom: 12px; }
   .lodge-dist { font: 400 17px/1.2 var(--f); color: var(--muted); white-space: nowrap; }
@@ -305,6 +305,39 @@
   .lodge-table .lodge-contact > * { display: block; width: fit-content; }
   .lodge-table .lodge-links { width: 25%; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
   .lodge-foot { max-width: 640px; margin: 0 auto; padding: 64px 56px 96px; text-align: center; font: 400 19px/1.7 var(--f); color: var(--muted); }
+
+  /* carte interactive */
+  .lodge-map-wrap { max-width: 860px; margin: 0 auto; padding: 44px 56px 0; }
+  .lodge-map svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .map-disc { fill: var(--sand); opacity: .55; }
+  .map-ring { fill: none; stroke: var(--line); stroke-opacity: .55; stroke-width: 1; stroke-dasharray: 2 6; }
+  .map-ring-label { font: 400 13px var(--fj); letter-spacing: .08em; fill: var(--caption); text-anchor: middle; paint-order: stroke; stroke: var(--sand); stroke-width: 4px; stroke-linejoin: round; }
+  .map-north { font: 500 12px var(--fj); letter-spacing: .12em; fill: var(--caption); text-anchor: middle; }
+  .map-north-arrow { fill: none; stroke: var(--caption); stroke-width: 1.2; }
+  .map-label { font-family: var(--f); font-weight: 500; fill: var(--ink); paint-order: stroke; stroke: var(--ground); stroke-width: 5px; stroke-linejoin: round; pointer-events: none; }
+  .map-domain-label { font-family: var(--f); font-weight: 600; fill: var(--green); text-anchor: middle; paint-order: stroke; stroke: var(--ground); stroke-width: 5px; stroke-linejoin: round; }
+  .map-domain-pulse { fill: var(--green); opacity: .16; transform-box: fill-box; transform-origin: center; animation: mapPulse 3.2s ease-out infinite; }
+  @keyframes mapPulse { from { transform: scale(.6); opacity: .28; } to { transform: scale(2.1); opacity: 0; } }
+  .map-vil { cursor: pointer; outline: none; }
+  .map-vil .map-hit { fill: transparent; }
+  .map-vil .map-dot { fill: var(--ground); stroke: var(--acc); stroke-width: 1.8; transition: fill .2s ease, transform .2s ease; transform-box: fill-box; transform-origin: center; }
+  .map-vil .map-count { font: 500 12px var(--fj); fill: var(--acc); text-anchor: middle; dominant-baseline: central; pointer-events: none; transition: fill .2s ease; }
+  .map-vil:hover .map-dot, .map-vil:focus-visible .map-dot { fill: var(--sand); transform: scale(1.18); }
+  .map-vil:focus-visible .map-dot { stroke-width: 3; }
+  .map-vil.on .map-dot { fill: var(--acc); transform: scale(1.22); }
+  .map-vil.on .map-count { fill: var(--white); }
+  .map-vil.on + .map-label, .map-vil:hover + .map-label { fill: var(--acc); }
+  .lodge-map-panel { margin-top: 22px; padding: 22px 26px; border: 1px solid var(--line); background: var(--white); min-height: 96px; }
+  .lodge-map-panel .panel-hint { font: 400 19px/1.6 var(--f); color: var(--muted); text-align: center; padding: 20px 0; }
+  .lodge-map-panel .panel-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 20px; padding-bottom: 12px; border-bottom: 1px solid var(--sand); }
+  .lodge-map-panel .panel-name { font: 500 25px/1.2 var(--f); color: var(--disp); margin: 0; }
+  .lodge-map-panel .panel-dist { font: 400 17px/1.2 var(--f); color: var(--muted); }
+  .panel-item { padding: 14px 0; border-bottom: 1px solid var(--sand); font: 400 18px/1.5 var(--f); color: var(--ink); }
+  .panel-item:last-of-type { border-bottom: none; }
+  .panel-item-name { font-weight: 500; }
+  .panel-item-contact { display: flex; flex-wrap: wrap; gap: 2px 20px; margin-top: 2px; color: var(--muted); overflow-wrap: anywhere; }
+  .panel-more { margin-top: 6px; }
+  .lodge-map-note { margin: 14px 0 0; text-align: center; font: 400 16px/1.5 var(--f); color: var(--caption); }
 
   /* ---------- ACCÈS PAR MOT DE PASSE ---------- */
   html.locked { background: var(--ground); }
@@ -440,6 +473,9 @@
     .gallery3 { grid-template-columns: 1fr; padding: 40px 22px 0; }
     .steps3 { grid-template-columns: 1fr; gap: 34px; padding: 46px 22px; margin-top: 46px; }
 
+    .lodge-map-wrap { padding: 30px 14px 0; }
+    .lodge-map-panel { padding: 16px 18px; }
+    .lodge-map-panel .panel-name { font-size: 21px; }
     .lodge-table-wrap { padding: 34px 22px 0; }
     .lodge-city-name { font-size: 21px; }
     .lodge-dist { font-size: 16px; }
@@ -719,6 +755,12 @@
     <p class="dek">Quelques chambres sont réservées au domaine et dans les gîtes alentour, classés du plus proche au plus éloigné du domaine.</p>
   </div>
 
+  <div class="lodge-map-wrap">
+    <div class="lodge-map" id="lodge-map"></div>
+    <div class="lodge-map-panel" id="lodge-map-panel" aria-live="polite"></div>
+    <p class="lodge-map-note">Schéma : chaque village est placé dans sa direction réelle, à sa distance par la route du domaine (un cercle tous les 5 km).</p>
+  </div>
+
   <div class="lodge-table-wrap" id="lodgings"></div>
 
   <div class="lodge-foot">
@@ -817,26 +859,28 @@
     { name: 'Fr\u00e9d\u00e9ric Agid', ville: 'Villeneuve-l\u2019Archev\u00eaque', address: 'Villeneuve-l\u2019Archev\u00eaque', tel: '06 13 08 46 97' },
     { name: 'Chez Patrick & Dani\u00e8le Piotrowski', ville: 'Voisines', address: 'Voisines', tel: '06 77 87 13 02', email: 'patrick.leruy89@gmail.com' }
   ];
-  /* Distance routière [km, minutes] de chaque village au Domaine de Vauluisant. */
+  /* Par village : [distance routière en km, minutes, longitude, latitude] depuis le Domaine de Vauluisant.
+     Longitude et latitude servent seulement à placer le village dans la bonne direction sur la carte. */
+  var DOMAINE = [3.5351896, 48.2660328];
   var DIST = {
-    'Lailly': [2.8, 3],
-    'Courgenay': [2.8, 4],
-    'Villeneuve-l\u2019Archev\u00eaque': [5.7, 7],
-    'Vulaines': [10.4, 12],
-    'Les Si\u00e8ges': [12.2, 16],
-    'Rigny-le-Ferron': [13.7, 15],
-    'Saint-Benoist-sur-Vanne': [14.0, 15],
-    'Voisines': [15.0, 16],
-    'Coulours': [15.1, 17],
-    'Villiers-Louis': [16.7, 17],
-    'Paisy-Cosdon': [18.1, 19],
-    'Vaudeurs': [18.2, 22],
-    'B\u00e9rulle': [19.2, 25],
-    'Cerisiers': [19.5, 22],
-    'Rigny-la-Nonneuse': [21.2, 24],
-    'Saint-Cl\u00e9ment': [25.3, 26],
-    'Estissac': [25.6, 27],
-    '\u00c9vry': [25.9, 29]
+    'Lailly': [2.8, 3, 3.5034, 48.2637],
+    'Courgenay': [2.8, 4, 3.5517, 48.2877],
+    'Villeneuve-l\u2019Archev\u00eaque': [5.7, 7, 3.5646, 48.2334],
+    'Vulaines': [10.4, 12, 3.6225, 48.2417],
+    'Les Si\u00e8ges': [12.2, 16, 3.5356, 48.1729],
+    'Rigny-le-Ferron': [13.7, 15, 3.6238, 48.2022],
+    'Saint-Benoist-sur-Vanne': [14.0, 15, 3.6726, 48.233],
+    'Voisines': [15.0, 16, 3.4178, 48.2536],
+    'Coulours': [15.1, 17, 3.5956, 48.1619],
+    'Villiers-Louis': [16.7, 17, 3.3949, 48.1952],
+    'Paisy-Cosdon': [18.1, 19, 3.7005, 48.2166],
+    'Vaudeurs': [18.2, 22, 3.549, 48.1251],
+    'B\u00e9rulle': [19.2, 25, 3.6698, 48.1681],
+    'Cerisiers': [19.5, 22, 3.5135, 48.1245],
+    'Rigny-la-Nonneuse': [21.2, 24, 3.6483, 48.4149],
+    'Saint-Cl\u00e9ment': [25.3, 26, 3.3183, 48.2234],
+    'Estissac': [25.6, 27, 3.8117, 48.2507],
+    '\u00c9vry': [25.9, 29, 3.2611, 48.2681]
   };
   var lodgeWrap = document.getElementById('lodgings');
 
@@ -851,22 +895,43 @@
     a.href = href; a.target = '_blank'; a.rel = 'noopener noreferrer';
     return a;
   }
+  function fillContact(parent, l) {
+    if (l.tel) {
+      var tel = el('a', 'link-u sm', l.tel);
+      tel.href = 'tel:+33' + l.tel.replace(/\s/g, '').slice(1);
+      parent.appendChild(tel);
+    }
+    if (l.email) {
+      var mail = el('a', 'link-u sm', l.email);
+      mail.href = 'mailto:' + l.email;
+      parent.appendChild(mail);
+    }
+    if (l.note) parent.appendChild(el('span', '', l.note));
+  }
+  function fillLinks(parent, l) {
+    parent.appendChild(extLink('Maps ↗', 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(l.address || l.name + ', ' + l.ville)));
+    if (l.site) parent.appendChild(extLink('Site ↗', l.site));
+    if (l.url) parent.appendChild(extLink('Réserver →', l.url));
+  }
+  function distText(ville) {
+    var km = DIST[ville][0];
+    var kmTxt = (km < 10 ? km.toFixed(1) : String(Math.round(km))).replace('.', ',');
+    return kmTxt + ' km · ' + DIST[ville][1] + ' min en voiture';
+  }
 
   var byVille = {};
   LODGINGS.forEach(function (l) {
     (byVille[l.ville] = byVille[l.ville] || []).push(l);
   });
   function dist(v) { return DIST[v] || [Infinity, Infinity]; }
-  Object.keys(byVille).sort(function (a, b) {
+  var villes = Object.keys(byVille).sort(function (a, b) {
     return dist(a)[0] - dist(b)[0] || dist(a)[1] - dist(b)[1] || a.localeCompare(b, 'fr');
-  }).forEach(function (ville) {
+  });
+  var cityGroups = {};
+  villes.forEach(function (ville) {
     var group = el('div', 'lodge-city');
     var head = el('h2', 'lodge-city-name', ville);
-    if (DIST[ville]) {
-      var km = DIST[ville][0];
-      var kmTxt = (km < 10 ? km.toFixed(1) : String(Math.round(km))).replace('.', ',');
-      head.appendChild(el('span', 'lodge-dist', kmTxt + ' km \u00b7 ' + DIST[ville][1] + ' min en voiture'));
-    }
+    if (DIST[ville]) head.appendChild(el('span', 'lodge-dist', distText(ville)));
     group.appendChild(head);
 
     var table = el('table', 'lodge-table');
@@ -875,29 +940,176 @@
       var tr = el('tr');
       tr.appendChild(el('td', 'lodge-name', l.name));
       var tdContact = el('td', 'lodge-contact');
-      if (l.tel) {
-        var tel = el('a', 'link-u sm', l.tel);
-        tel.href = 'tel:+33' + l.tel.replace(/\s/g, '').slice(1);
-        tdContact.appendChild(tel);
-      }
-      if (l.email) {
-        var mail = el('a', 'link-u sm', l.email);
-        mail.href = 'mailto:' + l.email;
-        tdContact.appendChild(mail);
-      }
-      if (l.note) tdContact.appendChild(el('span', '', l.note));
+      fillContact(tdContact, l);
       tr.appendChild(tdContact);
       var tdLinks = el('td', 'lodge-links');
-      tdLinks.appendChild(extLink('Maps \u2197', 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(l.address || l.name + ', ' + l.ville)));
-      if (l.site) tdLinks.appendChild(extLink('Site \u2197', l.site));
-      if (l.url) tdLinks.appendChild(extLink('R\u00e9server \u2192', l.url));
+      fillLinks(tdLinks, l);
       tr.appendChild(tdLinks);
       tbody.appendChild(tr);
     });
     table.appendChild(tbody);
     group.appendChild(table);
     lodgeWrap.appendChild(group);
+    cityGroups[ville] = group;
   });
+
+  /* ---------- carte interactive ----------
+     Schéma centré sur le domaine : chaque village est placé dans sa direction
+     réelle, à sa distance par la route (DIST). */
+  var SVGNS = 'http://www.w3.org/2000/svg';
+  var mapBox = document.getElementById('lodge-map');
+  var mapPanel = document.getElementById('lodge-map-panel');
+  var narrowMq = window.matchMedia('(max-width: 640px)');
+  var selectedVille = null;
+
+  function sv(tag, attrs, parent) {
+    var n = document.createElementNS(SVGNS, tag);
+    for (var k in attrs) n.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(n);
+    return n;
+  }
+  function svText(parent, cls, x, y, anchor, text, size) {
+    var t = sv('text', { 'class': cls, x: x, y: y, 'font-size': size }, parent);
+    if (anchor) t.setAttribute('text-anchor', anchor);
+    t.textContent = text;
+    return t;
+  }
+
+  function renderPanel() {
+    mapPanel.textContent = '';
+    if (!selectedVille) {
+      mapPanel.appendChild(el('p', 'panel-hint', 'Cliquez sur un village pour voir ses hébergements.'));
+      return;
+    }
+    var head = el('div', 'panel-head');
+    head.appendChild(el('h3', 'panel-name', selectedVille));
+    head.appendChild(el('span', 'panel-dist', distText(selectedVille)));
+    mapPanel.appendChild(head);
+    byVille[selectedVille].forEach(function (l) {
+      var item = el('div', 'panel-item');
+      item.appendChild(el('div', 'panel-item-name', l.name));
+      var row = el('div', 'panel-item-contact');
+      fillContact(row, l);
+      fillLinks(row, l);
+      item.appendChild(row);
+      mapPanel.appendChild(item);
+    });
+    var more = el('a', 'link-u sm panel-more', 'Voir dans la liste ↓');
+    more.href = '#';
+    more.addEventListener('click', function (e) {
+      e.preventDefault();
+      cityGroups[selectedVille].scrollIntoView({ behavior: reduceMotionPref() ? 'auto' : 'smooth', block: 'start' });
+    });
+    mapPanel.appendChild(more);
+  }
+  function reduceMotionPref() {
+    return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  function selectVille(ville) {
+    selectedVille = ville;
+    mapBox.querySelectorAll('.map-vil').forEach(function (g) {
+      var on = g.getAttribute('data-ville') === ville;
+      g.classList.toggle('on', on);
+      g.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    renderPanel();
+  }
+
+  function drawMap() {
+    var W = 860, H = 780, CX = 430, CY = 392, PX = 11.2;
+    var narrow = narrowMq.matches;
+    var fs = narrow ? 19 : 16, dotR = narrow ? 13 : 10;
+    /* sur petit écran, l'échelle est légèrement étirée près du domaine pour aérer le centre */
+    function rad(km) { return narrow ? 300 * Math.pow(km / 26, 0.8) : km * PX; }
+    mapBox.textContent = '';
+    var root = sv('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'group', 'aria-label': 'Carte des hébergements autour du Domaine de Vauluisant' });
+    mapBox.appendChild(root);
+
+    sv('circle', { 'class': 'map-disc', cx: CX, cy: CY, r: rad(27) }, root);
+    for (var km = 5; km <= 25; km += 5) {
+      sv('circle', { 'class': 'map-ring', cx: CX, cy: CY, r: rad(km) }, root);
+      svText(root, 'map-ring-label', CX, CY - rad(km) - 5, null, km + ' km', narrow ? 15 : 13);
+    }
+    var ng = sv('g', {}, root);
+    sv('path', { 'class': 'map-north-arrow', d: 'M' + (W - 44) + ' 92 V52 M' + (W - 51) + ' 62 L' + (W - 44) + ' 52 L' + (W - 37) + ' 62' }, ng);
+    svText(ng, 'map-north', W - 44, 40, null, 'N', 13);
+
+    /* zones déjà occupées, pour ne pas superposer les étiquettes */
+    var used = [];
+    function box(x0, y0, x1, y1) { return { x0: x0, y0: y0, x1: x1, y1: y1 }; }
+    function hits(b) {
+      if (b.x0 < 4 || b.x1 > W - 4 || b.y0 < 4 || b.y1 > H - 4) return true;
+      return used.some(function (u) { return b.x0 < u.x1 && b.x1 > u.x0 && b.y0 < u.y1 && b.y1 > u.y0; });
+    }
+    function overlap(b) {
+      var out = Math.max(0, 4 - b.x0) + Math.max(0, b.x1 - (W - 4)) + Math.max(0, 4 - b.y0) + Math.max(0, b.y1 - (H - 4));
+      var sum = out * 1000;
+      used.forEach(function (u) {
+        var ox = Math.min(b.x1, u.x1) - Math.max(b.x0, u.x0), oy = Math.min(b.y1, u.y1) - Math.max(b.y0, u.y0);
+        if (ox > 0 && oy > 0) sum += ox * oy;
+      });
+      return sum;
+    }
+    var domLabel = 'Domaine de Vauluisant';
+    var domW = domLabel.length * fs * 0.52;
+    var domFs = fs + 1;
+    used.push(box(CX - 16, CY - 16, CX + 16, CY + 16));
+    used.push(box(CX - domW / 2, CY + 20, CX + domW / 2, CY + 24 + domFs));
+
+    var cosLat = Math.cos(DOMAINE[1] * Math.PI / 180);
+    var pts = villes.filter(function (v) { return DIST[v]; }).map(function (v) {
+      var d = DIST[v];
+      var a = Math.atan2((d[2] - DOMAINE[0]) * cosLat, d[3] - DOMAINE[1]);
+      var r = rad(d[0]);
+      return { ville: v, x: CX + r * Math.sin(a), y: CY - r * Math.cos(a) };
+    });
+    pts.forEach(function (p) { used.push(box(p.x - dotR - 3, p.y - dotR - 3, p.x + dotR + 3, p.y + dotR + 3)); });
+
+    pts.forEach(function (p) {
+      var n = byVille[p.ville].length;
+      var g = sv('g', { 'class': 'map-vil', 'data-ville': p.ville, role: 'button', tabindex: 0, 'aria-pressed': 'false',
+        'aria-label': p.ville + ', ' + distText(p.ville) + ', ' + n + (n > 1 ? ' hébergements' : ' hébergement') }, root);
+      sv('circle', { 'class': 'map-hit', cx: p.x, cy: p.y, r: dotR + 9 }, g);
+      sv('circle', { 'class': 'map-dot', cx: p.x, cy: p.y, r: dotR }, g);
+      svText(g, 'map-count', p.x, p.y, null, String(n), narrow ? 14 : 12);
+      g.addEventListener('click', function () { selectVille(p.ville); });
+      g.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectVille(p.ville); }
+      });
+
+      /* étiquette : on essaie vers l'extérieur d'abord, puis les autres côtés */
+      var label = narrow ? p.ville.replace(/^Saint-/, 'St-') : p.ville;
+      var w = label.length * fs * 0.56, gap = dotR + 6, d = gap * 0.75, h = fs * 0.62;
+      function side(x, y, anchor, bx0, by0, bx1, by1) { return { x: x, y: y, anchor: anchor, b: box(bx0, by0, bx1, by1) }; }
+      var right = side(p.x + gap, p.y + fs * 0.3, 'start', p.x + gap, p.y - h, p.x + gap + w, p.y + h);
+      var left  = side(p.x - gap, p.y + fs * 0.3, 'end', p.x - gap - w, p.y - h, p.x - gap, p.y + h);
+      var top   = side(p.x, p.y - gap, 'middle', p.x - w / 2, p.y - gap - fs * 0.9, p.x + w / 2, p.y - gap + fs * 0.25);
+      var bot   = side(p.x, p.y + gap + fs * 0.8, 'middle', p.x - w / 2, p.y + gap, p.x + w / 2, p.y + gap + fs * 1.05);
+      var ne = side(p.x + d, p.y - d, 'start', p.x + d, p.y - d - fs * 0.8, p.x + d + w, p.y - d + fs * 0.2);
+      var se = side(p.x + d, p.y + d + fs * 0.7, 'start', p.x + d, p.y + d, p.x + d + w, p.y + d + fs * 0.95);
+      var nw = side(p.x - d, p.y - d, 'end', p.x - d - w, p.y - d - fs * 0.8, p.x - d, p.y - d + fs * 0.2);
+      var sw = side(p.x - d, p.y + d + fs * 0.7, 'end', p.x - d - w, p.y + d, p.x - d, p.y + d + fs * 0.95);
+      var order = p.x >= CX ? [right, left, ne, se, nw, sw, top, bot] : [left, right, nw, sw, ne, se, top, bot];
+      var pick = order.filter(function (c) { return !hits(c.b); })[0];
+      if (!pick) {
+        pick = order.slice().sort(function (c1, c2) { return overlap(c1.b) - overlap(c2.b); })[0];
+      }
+      used.push(pick.b);
+      svText(root, 'map-label', pick.x, pick.y, pick.anchor, label, fs);
+    });
+
+    var dom = sv('g', {}, root);
+    sv('circle', { 'class': 'map-domain-pulse', cx: CX, cy: CY, r: 14 }, dom);
+    sv('circle', { cx: CX, cy: CY, r: 13, fill: 'var(--green)', stroke: 'var(--line)', 'stroke-width': 2.5 }, dom);
+    sv('circle', { cx: CX, cy: CY, r: 4.5, fill: 'var(--brass-light)' }, dom);
+    svText(dom, 'map-domain-label', CX, CY + 24 + domFs * 0.8, null, domLabel, domFs);
+
+    if (selectedVille) selectVille(selectedVille); else renderPanel();
+  }
+  drawMap();
+  if (narrowMq.addEventListener) narrowMq.addEventListener('change', drawMap);
+  else if (narrowMq.addListener) narrowMq.addListener(drawMap);
 
   /* ---------- apparition au défilement ---------- */
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
