@@ -288,7 +288,8 @@
 
   .gallery3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 20px; padding: 60px 56px 0; }
   .gallery3 .ph { height: 230px; }
-  .g-item { display: block; overflow: hidden; }
+  .g-item { position: relative; display: block; overflow: hidden; }
+  .g-title { position: absolute; left: 0; right: 0; bottom: 0; padding: 36px 20px 16px; text-align: center; color: var(--white); font: 500 26px/1.2 var(--f); background: linear-gradient(to top, rgba(27,26,23,.62), rgba(27,26,23,0)); pointer-events: none; }
   .g-item .ph { display: block; transition: transform .6s ease; }
   .g-item:hover .ph, .g-item:focus-visible .ph { transform: scale(1.04); }
 
@@ -562,7 +563,7 @@
 
   <div class="intro">
     <p class="lede">Nous serions très heureux de vous avoir auprès de nous pour échanger nos vœux, entourés de notre famille et de nos amis.</p>
-    <p class="body">Cérémonie religieuse à l'église, puis direction le domaine pour le cocktail, le dîner et la nuit.</p>
+    <p class="body">Cérémonie religieuse à l'église, puis direction le domaine pour le cocktail, le dîner et la soirée.</p>
   </div>
 
   <div class="two-col">
@@ -590,7 +591,7 @@
     <div class="text">
       <div class="kicker">Hébergements</div>
       <div class="title">Dormir près du domaine</div>
-      <p class="body">De nombreux logements se trouvent à proximité du domaine ; nous vous conseillons de prévoir deux nuits, en arrivant dès le jeudi soir. Des navettes vous ramèneront à votre hébergement en fin de soirée ; s'il est à plus de 25 minutes du domaine, prévoyez plutôt un taxi.</p>
+      <p class="body">De nombreux logements se trouvent à proximité du domaine. Des navettes vous ramèneront à votre hébergement en fin de soirée ; au-delà de 25 km du domaine, elles ne sont pas assurées et il faudra prévoir un taxi.</p>
       <a class="link-u" href="#" data-goto="hebergements">Voir la liste des hébergements +</a>
     </div>
   </div>
@@ -637,7 +638,7 @@
       <div class="t-axis"><span></span></div>
       <div class="t-body">
         <div class="t-title">Cocktail dans le parc du domaine</div>
-        <div class="t-desc">Domaine de Vauluisant. On trinque en plein air, dans le parc : pensez à une petite laine pour la fin de soirée.</div>
+        <div class="t-desc">Domaine de Vauluisant. On trinque en plein air, dans le parc.</div>
         <a class="link-u sm t-map" href="https://www.google.com/maps/search/?api=1&amp;query=Domaine+de+Vauluisant%2C+Courgenay" target="_blank" rel="noopener noreferrer">Ouvrir dans Maps ↗</a>
       </div>
 
@@ -652,7 +653,7 @@
       <div class="t-axis last"><span></span></div>
       <div class="t-body last">
         <div class="t-title">Soirée</div>
-        <div class="t-desc">Place à la fête, jusqu'au bout de la nuit.</div>
+        <div class="t-desc">Place à la fête, jusqu'au bout de la nuit. Navettes de retour vers les hébergements situés à moins de 25 km du domaine.</div>
       </div>
     </div>
   </div>
@@ -721,13 +722,13 @@
     <h1>Votre présence<br>est notre plus beau cadeau</h1>
     <p>Mais si le cœur vous en dit, notre liste est ouverte chez <em>Mille Mercis Mariage</em> : une cagnotte pour notre voyage de noces et quelques envies pour la maison.</p>
     <a class="btn" href="https://www.millemercismariage.com/maylisditouiaalexis/liste.html" target="_blank" rel="noopener noreferrer">Voir notre liste →</a>
-    <div class="hint">nouvel onglet · millemercismariage.com</div>
+    <div class="hint">millemercismariage.com</div>
   </div>
 
   <div class="gallery3">
-    <a class="g-item" href="https://www.millemercismariage.com/maylisditouiaalexis/liste.html" target="_blank" rel="noopener noreferrer"><img class="ph" src="images/liste-voyage.webp" alt="Cagnotte voyage de noces : voir notre liste" width="800" height="520" loading="lazy"></a>
-    <a class="g-item" href="https://www.millemercismariage.com/maylisditouiaalexis/liste.html" target="_blank" rel="noopener noreferrer"><img class="ph" src="images/liste-maison.webp" alt="Quelques envies pour la maison : voir notre liste" width="800" height="520" loading="lazy"></a>
-    <a class="g-item" href="https://www.millemercismariage.com/maylisditouiaalexis/liste.html" target="_blank" rel="noopener noreferrer"><img class="ph" src="images/liste-libre.webp" alt="Montant libre : voir notre liste" width="800" height="520" loading="lazy"></a>
+    <a class="g-item" href="https://www.millemercismariage.com/maylisditouiaalexis/liste.html" target="_blank" rel="noopener noreferrer"><img class="ph" src="images/liste-voyage.webp" alt="Cagnotte voyage de noces : voir notre liste" width="800" height="520" loading="lazy"><span class="g-title">Voyage de noces</span></a>
+    <a class="g-item" href="https://www.millemercismariage.com/maylisditouiaalexis/liste.html" target="_blank" rel="noopener noreferrer"><img class="ph" src="images/liste-maison.webp" alt="Quelques envies pour la maison : voir notre liste" width="800" height="520" loading="lazy"><span class="g-title">Maison</span></a>
+    <a class="g-item" href="https://www.millemercismariage.com/maylisditouiaalexis/liste.html" target="_blank" rel="noopener noreferrer"><img class="ph" src="images/liste-libre.webp" alt="Montant libre : voir notre liste" width="800" height="520" loading="lazy"><span class="g-title">Montant libre</span></a>
   </div>
 
   <div class="steps3 band">
@@ -749,19 +750,19 @@
   <div class="page-head">
     <div class="flanked cap"><span class="rule"></span>Hébergements<span class="rule"></span></div>
     <h1>Dormir près du domaine</h1>
-    <p class="dek">Voici une sélection d'hébergements autour du domaine, classés du plus proche au plus éloigné. Le mariage a lieu un vendredi : pour profiter de la région et aborder la journée sereinement, nous vous conseillons de prendre deux nuits, en arrivant dès le jeudi soir.</p>
+    <p class="dek">Voici une sélection d'hébergements autour du domaine, classés du plus proche au plus éloigné.</p>
   </div>
 
   <div class="lodge-map-wrap">
     <div class="lodge-map" id="lodge-map"></div>
     <div class="lodge-map-panel" id="lodge-map-panel" aria-live="polite"></div>
-    <p class="lodge-map-note">Chaque village est placé dans sa direction, à sa distance par la route du domaine (un cercle tous les 5 km).</p>
+    <p class="lodge-map-note">Chaque village est placé dans sa direction, à sa distance par la route du domaine (un cercle tous les 5 km). Au-delà de 25 km, la navette ne prend pas en charge le retour.</p>
   </div>
 
   <div class="lodge-table-wrap" id="lodgings"></div>
 
   <div class="lodge-foot">
-    Des navettes vous ramèneront à votre hébergement en fin de soirée ; au-delà de 25 minutes du domaine, prévoyez plutôt un taxi.<br>La campagne est jolie mais peu desservie : pensez aussi au covoiturage.
+    Des navettes vous ramèneront à votre hébergement en fin de soirée ; au-delà de 25 km du domaine, elles ne sont pas assurées et il faudra prévoir un taxi.<br>La campagne est jolie mais peu desservie : pensez aussi au covoiturage.
   </div>
 </section>
 
@@ -837,9 +838,7 @@
     { name: 'Auberge des vieux moulins banaux', ville: 'Villeneuve-l\u2019Archev\u00eaque', tel: '03 86 86 72 55' },
     { name: 'Au 24', ville: 'Villiers-Louis', tel: '08 90 21 19 54' },
     { name: 'Les petites maisons en bois', ville: 'Paisy-Cosdon', tel: '06 60 81 72 81' },
-    { name: 'Le Betrot', ville: 'Estissac', tel: '03 25 41 59 85' },
     { name: 'Maisonnette 1780', ville: 'Vaudeurs', note: 'Via Airbnb' },
-    { name: 'Atelier des sens', ville: '\u00c9vry', tel: '07 49 28 13 28' },
     { name: 'G\u00eete \u2013 Aur\u00e9lia et Ambroise Gram Fabre', ville: 'Rigny-le-Ferron', address: 'Rigny-le-Ferron', tel: '06 52 19 54 63' },
     { name: 'Villa Campagne', ville: 'Cerisiers', tel: '06 01 07 14 39' },
     { name: 'Campagne et For\u00eat', ville: 'Coulours', tel: '06 66 50 74 32' },
@@ -875,9 +874,7 @@
     'B\u00e9rulle': [19.2, 25, 3.6698, 48.1681],
     'Cerisiers': [19.5, 22, 3.5135, 48.1245],
     'Rigny-la-Nonneuse': [21.2, 24, 3.6483, 48.4149],
-    'Saint-Cl\u00e9ment': [25.3, 26, 3.3183, 48.2234],
-    'Estissac': [25.6, 27, 3.8117, 48.2507],
-    '\u00c9vry': [25.9, 29, 3.2611, 48.2681]
+    'Saint-Cl\u00e9ment': [25.3, 26, 3.3183, 48.2234]
   };
   var lodgeWrap = document.getElementById('lodgings');
 
@@ -1023,7 +1020,7 @@
     var root = sv('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'group', 'aria-label': 'Carte des hébergements autour du Domaine de Vauluisant' });
     mapBox.appendChild(root);
 
-    sv('circle', { 'class': 'map-disc', cx: CX, cy: CY, r: rad(27) }, root);
+    sv('circle', { 'class': 'map-disc', cx: CX, cy: CY, r: rad(26.5) }, root);
     for (var km = 5; km <= 25; km += 5) {
       sv('circle', { 'class': 'map-ring', cx: CX, cy: CY, r: rad(km) }, root);
       svText(root, 'map-ring-label', CX, CY - rad(km) - 5, null, km + ' km', narrow ? 15 : 13);
