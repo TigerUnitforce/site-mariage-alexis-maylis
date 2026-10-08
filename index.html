@@ -830,30 +830,50 @@
      Une entrée par hébergement, regroupée et triée par ville.
      Supprimer une entrée ici quand un hébergement est complet. */
   var LODGINGS = [
-    { name: 'Maison de campagne avec sauna, fitness et jardin', ville: 'Villeneuve-l\u2019Archev\u00eaque', address: 'Villeneuve-l\u2019Archev\u00eaque', note: 'Via Airbnb', url: 'https://www.airbnb.fr/rooms/34205232?check_in=2027-07-29&check_out=2027-07-31&guests=10&adults=10' },
-    { name: 'Villa Cl\u00e9ment \u2013 Apart\u2019H\u00f4tel', ville: 'Saint-Cl\u00e9ment', tel: '06 16 16 11 97', site: 'https://www.villaclement.fr' },
+    { name: 'Maison de campagne avec sauna, fitness et jardin', ville: 'Villeneuve-l\u2019Archev\u00eaque', note: 'Via Airbnb', url: 'https://www.airbnb.fr/rooms/34205232?check_in=2027-07-29&check_out=2027-07-31&guests=10&adults=10' },
+    { name: 'Villa Cl\u00e9ment \u2013 Apart\u2019H\u00f4tel', ville: 'Saint-Cl\u00e9ment', maps: 'Villa Cl\u00e9ment Sens Appart\u2019h\u00f4tel, 58 Rue de la R\u00e9publique, Sens', tel: '06 16 16 11 97', site: 'https://www.villaclement.fr' },
     { name: 'La Merlette', ville: 'Lailly', tel: '06 04 02 96 95' },
     { name: 'Le g\u00eete de Lailly', ville: 'Lailly', email: 'gitelailly89@laposte.net' },
     { name: 'Le G\u00eete du petit ch\u00e2teau', ville: 'Courgenay', tel: '06 71 46 81 20' },
-    { name: 'Auberge des vieux moulins banaux', ville: 'Villeneuve-l\u2019Archev\u00eaque', tel: '03 86 86 72 55' },
+    { name: 'Auberge des vieux moulins banaux', ville: 'Villeneuve-l\u2019Archev\u00eaque', maps: 'Auberge des Vieux Moulins Banaux, 18 Route des Moulins Banaux, Villeneuve-l\u2019Archev\u00eaque', tel: '03 86 86 72 55' },
     { name: 'Au 24', ville: 'Villiers-Louis', tel: '08 90 21 19 54' },
     { name: 'Les petites maisons en bois', ville: 'Paisy-Cosdon', tel: '06 60 81 72 81' },
     { name: 'Maisonnette 1780', ville: 'Vaudeurs', note: 'Via Airbnb' },
-    { name: 'G\u00eete \u2013 Aur\u00e9lia et Ambroise Gram Fabre', ville: 'Rigny-le-Ferron', address: 'Rigny-le-Ferron', tel: '06 52 19 54 63' },
+    { name: 'G\u00eete \u2013 Aur\u00e9lia et Ambroise Gram Fabre', ville: 'Rigny-le-Ferron', tel: '06 52 19 54 63' },
     { name: 'Villa Campagne', ville: 'Cerisiers', tel: '06 01 07 14 39' },
     { name: 'Campagne et For\u00eat', ville: 'Coulours', tel: '06 66 50 74 32' },
     { name: 'La petite maison de la ferme d\u2019Armenti\u00e8res', ville: 'Saint-Benoist-sur-Vanne', note: 'Via Airbnb', tel: '07 83 73 71 02' },
-    { name: 'Chez Augustin', ville: 'B\u00e9rulle', address: 'B\u00e9rulle', tel: '06 72 74 48 53' },
+    { name: 'Chez Augustin', ville: 'B\u00e9rulle', tel: '06 72 74 48 53' },
     { name: 'Week-end au vert', ville: 'Voisines', note: 'Via Airbnb' },
-    { name: 'Maison de village de Charme', ville: 'Voisines', address: 'Voisines', note: 'Pierre-Luc Couac \u00b7 groupes uniquement', tel: '06 13 12 42 29' },
+    { name: 'Maison de village de Charme', ville: 'Voisines', note: 'Pierre-Luc Couac \u00b7 groupes uniquement', tel: '06 13 12 42 29' },
     { name: 'Quiet Voisines', ville: 'Voisines', note: '2 personnes minimum', tel: '06 60 04 58 95' },
     { name: 'Le duplex', ville: 'Villiers-Louis', note: 'Via Airbnb' },
     { name: 'G\u00eete \u2013 Les trois fr\u00e8res', ville: 'Paisy-Cosdon', tel: '06 95 53 05 30' },
     { name: 'G\u00eete \u2013 Le domaine des f\u00e9es', ville: 'Rigny-la-Nonneuse', tel: '03 25 25 11 92' },
     { name: 'Le Saule Fleuri', ville: 'Vulaines', tel: '03 25 40 80 99' },
-    { name: 'G\u00eete \u2013 Marie-Fran\u00e7oise Claret', ville: 'Les Si\u00e8ges', address: 'Les Si\u00e8ges', tel: '06 70 02 35 30' },
-    { name: 'G\u00eete \u2013 Fr\u00e9d\u00e9ric Agid', ville: 'Villeneuve-l\u2019Archev\u00eaque', address: 'Villeneuve-l\u2019Archev\u00eaque', tel: '06 13 08 46 97' },
-    { name: 'Les Flor\u00e9ales \u2013 chambre d\u2019h\u00f4tes', ville: 'Voisines', address: 'Voisines', note: 'Patrick & Dani\u00e8le \u00b7 2 personnes', tel: '06 77 87 13 02', email: 'patrick.leruy89@gmail.com' }
+    { name: 'G\u00eete \u2013 Marie-Fran\u00e7oise Claret', ville: 'Les Si\u00e8ges', tel: '06 70 02 35 30' },
+    { name: 'G\u00eete \u2013 Fr\u00e9d\u00e9ric Agid', ville: 'Villeneuve-l\u2019Archev\u00eaque', tel: '06 13 08 46 97' },
+    { name: 'Les Flor\u00e9ales \u2013 chambre d\u2019h\u00f4tes', ville: 'Voisines', note: 'Patrick & Dani\u00e8le \u00b7 2 personnes', tel: '06 77 87 13 02', email: 'patrick.leruy89@gmail.com' },
+    { name: 'H\u00e9bergement \u2013 4 chambres, 21 lits', ville: 'Bagneaux', note: '2 salles de bain et 1 toilette' },
+    { name: 'H\u00e9bergement \u2013 5 chambres, 13 lits', ville: 'Bagneaux', note: '\u26054,67 \u00b7 2 salles de bain' },
+    { name: 'H\u00e9bergement \u2013 4 chambres, 10 lits', ville: 'Bagneaux', note: '2 salles de bain et 1 toilette' },
+    { name: 'H\u00e9bergement \u2013 4 chambres, 4 lits', ville: 'B\u00e9rulle', note: '\u26055,0 \u00b7 2 salles de bain' },
+    { name: 'Villa \u2013 9 chambres, 25 lits', ville: 'Coulours', note: '\u26054,94 \u00b7 3 salles de bain' },
+    { name: 'H\u00e9bergement \u2013 6 chambres, 7 lits', ville: 'Villech\u00e9tive', note: '\u2605Nouveau \u00b7 2 salles de bain' },
+    { name: 'H\u00e9bergement \u2013 1 chambre, 1 lit', ville: 'Villech\u00e9tive', note: '\u26054,95 \u00b7 1 salle de bain' },
+    { name: 'H\u00e9bergement \u2013 1 chambre, 1 lit', ville: 'No\u00e9', note: '\u26054,95 \u00b7 1 salle de bain' },
+    { name: 'H\u00e9bergement \u2013 7 chambres, 10 lits', ville: 'Thorigny-sur-Oreuse', note: '\u26054,67 \u00b7 5 salles de bain' },
+    { name: 'H\u00e9bergement \u2013 3 chambres, 6 lits', ville: 'Avant-l\u00e8s-Marcilly', note: '\u26055,0 \u00b7 1 salle de bain' },
+    { name: 'H\u00e9bergement \u2013 2 chambres, 2 lits', ville: 'Avant-l\u00e8s-Marcilly', note: '\u26054,8 \u00b7 1 salle de bain' },
+    { name: 'Appartement \u2013 1 chambre, 1 lit', ville: 'Avant-l\u00e8s-Marcilly', note: '\u26054,6 \u00b7 1 salle de bain' },
+    { name: 'Ch\u00e2teau \u2013 6 chambres, 10 lits', ville: 'Trancault', note: '\u26054,45 \u00b7 3 salles de bain' },
+    { name: 'H\u00e9bergement \u2013 3 chambres, 6 lits', ville: 'Maillot', note: '\u26054,6 \u00b7 1 salle de bain' },
+    { name: 'Appartement \u2013 3 chambres, 3 lits', ville: 'Sens', note: '\u26054,94 \u00b7 1 salle de bain' },
+    { name: 'H\u00e9bergement \u2013 2 chambres, 2 lits', ville: 'Sens', note: '\u26054,86 \u00b7 1 salle de bain' },
+    { name: 'Appartement \u2013 1 chambre, 2 lits', ville: 'Sens', note: '\u26054,5 \u00b7 1 salle de bain' },
+    { name: 'H\u00f4tel de la Cath\u00e9drale', ville: 'Sens', note: 'Via Booking', url: 'https://www.booking.com/Share-MyufJ0' },
+    { name: 'Inter-H\u00f4tel Archotel', ville: 'Sens', maps: 'Archotel, 9 Cours Tarb\u00e9, 89100 Sens', note: 'Via Booking', url: 'https://www.booking.com/Share-lKdgkwe' },
+    { name: 'H\u00f4tel F1 Sens Nord', ville: 'Sens', maps: 'hotelF1 Sens Nord, Boulevard du Pont Neuf, 89100 Sens', note: 'Via Booking', url: 'https://www.booking.com/Share-mQGrgj' }
   ];
   /* Par village : [distance routière en km, minutes, longitude, latitude] depuis le Domaine de Vauluisant.
      Longitude et latitude servent seulement à placer le village dans la bonne direction sur la carte. */
@@ -874,7 +894,15 @@
     'B\u00e9rulle': [19.2, 25, 3.6698, 48.1681],
     'Cerisiers': [19.5, 22, 3.5135, 48.1245],
     'Rigny-la-Nonneuse': [21.2, 24, 3.6483, 48.4149],
-    'Saint-Cl\u00e9ment': [25.3, 26, 3.3183, 48.2234]
+    'Saint-Cl\u00e9ment': [25.3, 26, 3.3183, 48.2234],
+    'Bagneaux': [8.8, 11, 3.5944, 48.2321],
+    'Thorigny-sur-Oreuse': [12.9, 13, 3.4009, 48.2934],
+    'Trancault': [14.1, 16, 3.537, 48.3737],
+    'No\u00e9': [18.1, 20, 3.4022, 48.1629],
+    'Avant-l\u00e8s-Marcilly': [20.8, 23, 3.5705, 48.423],
+    'Villech\u00e9tive': [24.0, 28, 3.5136, 48.0946],
+    'Maillot': [24.3, 25, 3.306, 48.1745],
+    'Sens': [25.7, 28, 3.2826, 48.1979]
   };
   var lodgeWrap = document.getElementById('lodgings');
 
@@ -903,7 +931,9 @@
     if (l.note) parent.appendChild(el('span', '', l.note));
   }
   function fillLinks(parent, l) {
-    parent.appendChild(extLink('Maps ↗', 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(l.address || l.name + ', ' + l.ville)));
+    /* l.maps = adresse ou nom vérifié sur Google Maps ; sinon on pointe le centre du village (pas de recherche par nom, trop ambiguë) */
+    var q = l.maps || DIST[l.ville][3] + ',' + DIST[l.ville][2];
+    parent.appendChild(extLink(l.maps ? 'Maps ↗' : 'Village ↗', 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q)));
     if (l.site) parent.appendChild(extLink('Site ↗', l.site));
     if (l.url) parent.appendChild(extLink('Réserver →', l.url));
   }
