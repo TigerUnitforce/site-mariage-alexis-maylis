@@ -14,6 +14,41 @@
   var KEY = 'ma-acces';
   var root = document.documentElement;
 
+  /* ---------- statistiques de visite (GoatCounter, sans cookie) ----------
+     GC_CODE = le nom du compte créé sur goatcounter.com (https://CODE.goatcounter.com).
+     Vide = aucune statistique. track(chemin) compte une page vue. */
+  var GC_CODE = 'pitoite1995';
+  window.maTrack = function (path, event) {
+    if (!GC_CODE || !window.goatcounter || !window.goatcounter.count) return;
+    window.goatcounter.count({ path: path, title: path, event: !!event });
+  };
+  /* clics sortants (comptés comme « événements ») : liste de mariage, Maps, téléphone, e-mail,
+     et pour les hébergements le nom du logement (data-track posé sur la ligne). */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href]');
+    if (!a) return;
+    var h = a.getAttribute('href') || '', path;
+    if (/^tel:/.test(h)) path = 'clic/telephone';
+    else if (/^mailto:/.test(h)) path = 'clic/email';
+    else if (!/^https?:/.test(h)) return;
+    else if (/millemercismariage\.com/.test(h)) path = 'clic/liste-de-mariage';
+    else {
+      var row = a.closest('[data-track]');
+      if (row) path = 'clic/hebergement/' + row.getAttribute('data-track');
+      else if (/google\.[a-z.]+\/maps/.test(h)) path = 'clic/maps';
+      else path = 'clic/' + a.hostname;
+    }
+    window.maTrack(path, true);
+  }, true);
+  if (GC_CODE) {
+    window.goatcounter = { no_onload: true, endpoint: 'https://' + GC_CODE + '.goatcounter.com/count' };
+    var gc = document.createElement('script');
+    gc.async = true;
+    gc.src = 'https://gc.zgo.at/count.js';
+    gc.onload = function () { if (root.classList.contains('locked')) window.maTrack('/verrou'); else window.maTrack(window.maCurrent || '/'); };
+    document.head.appendChild(gc);
+  }
+
   try { if (localStorage.getItem(KEY) === HASH) return; } catch (e) {}
   root.classList.add('locked');
 
@@ -42,6 +77,7 @@
     function unlock() {
       try { localStorage.setItem(KEY, HASH); } catch (e) {}
       root.classList.remove('locked');
+      window.maTrack(window.maCurrent || '/accueil');
       window.scrollTo(0, 0);
       gate.classList.add('leaving');
       setTimeout(function () { gate.remove(); }, 900);
@@ -756,7 +792,7 @@
   <div class="lodge-map-wrap">
     <div class="lodge-map" id="lodge-map"></div>
     <div class="lodge-map-panel" id="lodge-map-panel" aria-live="polite"></div>
-    <p class="lodge-map-note">Chaque village est placé dans sa direction, à sa distance par la route du domaine (un cercle tous les 5 km). Au-delà de 25 km, la navette ne prend pas en charge le retour.</p>
+    <p class="lodge-map-note">Chaque village est placé dans sa direction, à sa distance par la route du domaine. Au-delà de 25 km, la navette ne prend pas en charge le retour. Cette liste n'est pas exhaustive : d'autres hébergements existent, tout n'y figure pas.</p>
   </div>
 
   <div class="lodge-table-wrap" id="lodgings"></div>
@@ -777,6 +813,8 @@
     views.forEach(function (v) {
       v.hidden = v.getAttribute('data-view') !== name;
     });
+    window.maCurrent = '/' + name;
+    if (!document.documentElement.classList.contains('locked')) window.maTrack(window.maCurrent);
     document.body.classList.toggle('on-home', name === 'accueil');
     document.querySelectorAll('.topnav .nav-link').forEach(function (el) {
       el.classList.toggle('active', el.getAttribute('data-goto') === name);
@@ -980,6 +1018,7 @@
     if (l.note) parent.appendChild(el('span', '', l.note));
   }
   function fillLinks(parent, l) {
+    parent.setAttribute('data-track', l.name);
     /* s'il y a un lien direct (site ou réservation), on n'affiche pas de Maps ; sinon l.maps = lien Google Maps, ou adresse / nom vérifié ; à défaut, le centre du village (pas de recherche par nom, trop ambiguë) */
     if (!(l.site || l.url)) {
       var q = l.maps || DIST[l.ville][3] + ',' + DIST[l.ville][2];
