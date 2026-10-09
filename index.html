@@ -790,13 +790,44 @@
     }
   }
 
+  /* ---------- adresse de chaque page ----------
+     L'adresse se termine par #accueil, #jourj, #hebergements, #liste ou #section-adresses
+     (= Le jour J, à la section Plan & accès) : un rafraîchissement ou un lien partagé
+     retombe sur la bonne page, et le bouton Retour du navigateur fonctionne. */
+  var ANCHOR_VIEW = { 'section-adresses': 'jourj' };
+
+  function viewFromHash() {
+    var id = decodeURIComponent(location.hash.replace(/^#\/?/, ''));
+    if (ANCHOR_VIEW[id]) return { name: ANCHOR_VIEW[id], anchor: id };
+    var known = Array.prototype.some.call(views, function (v) { return v.getAttribute('data-view') === id; });
+    return { name: known ? id : 'accueil', anchor: null };
+  }
+
+  function goTo(name, anchorId) {
+    var hash = '#' + (anchorId || name);
+    if (location.hash !== hash) {
+      try { history.pushState(null, '', hash); } catch (e) { location.hash = hash; }
+    }
+    showView(name, anchorId);
+  }
+
   document.querySelectorAll('[data-goto]').forEach(function (el) {
     el.addEventListener('click', function (e) {
       e.preventDefault();
-      showView(el.getAttribute('data-goto'), el.getAttribute('data-anchor'));
+      goTo(el.getAttribute('data-goto'), el.getAttribute('data-anchor'));
       if (el.hasAttribute('data-close')) closeMenu();
     });
   });
+
+  window.addEventListener('popstate', function () {
+    var r = viewFromHash();
+    showView(r.name, r.anchor);
+  });
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  (function () {
+    var r = viewFromHash();
+    showView(r.name, r.anchor);
+  })();
 
   function openMenu() { overlay.classList.add('open'); }
   function closeMenu() { overlay.classList.remove('open'); }
