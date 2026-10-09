@@ -832,10 +832,9 @@
   var LODGINGS = [
     { name: 'Maison de campagne avec sauna, fitness et jardin', ville: 'Villeneuve-l\u2019Archev\u00eaque', note: 'Via Airbnb', url: 'https://www.airbnb.fr/rooms/34205232?check_in=2027-07-29&check_out=2027-07-31&guests=10&adults=10' },
     { name: 'Villa Cl\u00e9ment \u2013 Apart\u2019H\u00f4tel', ville: 'Saint-Cl\u00e9ment', maps: 'Villa Cl\u00e9ment Sens Appart\u2019h\u00f4tel, 58 Rue de la R\u00e9publique, Sens', tel: '06 16 16 11 97', site: 'https://www.villaclement.fr' },
-    { name: 'La Merlette', ville: 'Lailly', tel: '06 04 02 96 95' },
-    { name: 'Le g\u00eete de Lailly', ville: 'Lailly', email: 'gitelailly89@laposte.net' },
-    { name: 'Le G\u00eete du petit ch\u00e2teau', ville: 'Courgenay', tel: '06 71 46 81 20' },
-    { name: 'Auberge des vieux moulins banaux', ville: 'Villeneuve-l\u2019Archev\u00eaque', maps: 'Auberge des Vieux Moulins Banaux, 18 Route des Moulins Banaux, Villeneuve-l\u2019Archev\u00eaque', tel: '03 86 86 72 55' },
+    { name: 'La Merlette', ville: 'Lailly', maps: 'https://maps.app.goo.gl/nyKUM2RdpyUeLQE17', tel: '06 04 02 96 95' },
+    { name: 'Le g\u00eete de Lailly', ville: 'Lailly', email: 'gitelailly89@laposte.net', url: 'https://www.gites.fr/d/63202420' },
+    { name: 'Le G\u00eete du petit ch\u00e2teau', ville: 'Courgenay', tel: '06 71 46 81 20', url: 'https://www.booking.com/hotel/fr/gite-du-petit-chateau.fr.html?checkin=2027-07-29&checkout=2027-07-31&group_adults=2&group_children=0&no_rooms=1' },
     { name: 'Au 24', ville: 'Villiers-Louis', tel: '08 90 21 19 54' },
     { name: 'Les petites maisons en bois', ville: 'Paisy-Cosdon', tel: '06 60 81 72 81' },
     { name: 'Maisonnette 1780', ville: 'Vaudeurs', note: 'Via Airbnb' },
@@ -852,7 +851,7 @@
     { name: 'G\u00eete \u2013 Le domaine des f\u00e9es', ville: 'Rigny-la-Nonneuse', tel: '03 25 25 11 92' },
     { name: 'Le Saule Fleuri', ville: 'Vulaines', tel: '03 25 40 80 99' },
     { name: 'G\u00eete \u2013 Marie-Fran\u00e7oise Claret', ville: 'Les Si\u00e8ges', tel: '06 70 02 35 30' },
-    { name: 'G\u00eete \u2013 Fr\u00e9d\u00e9ric Agid', ville: 'Villeneuve-l\u2019Archev\u00eaque', tel: '06 13 08 46 97' },
+    { name: 'G\u00eete \u2013 Fr\u00e9d\u00e9ric Agid', ville: 'Villeneuve-l\u2019Archev\u00eaque', tel: '06 13 08 46 97', url: 'https://www.abritel.fr/location-vacances/p2436379' },
     { name: 'Les Flor\u00e9ales \u2013 chambre d\u2019h\u00f4tes', ville: 'Voisines', note: 'Patrick & Dani\u00e8le \u00b7 2 personnes', tel: '06 77 87 13 02', email: 'patrick.leruy89@gmail.com' },
     { name: 'H\u00e9bergement \u2013 4 chambres, 21 lits', ville: 'Bagneaux', note: '2 salles de bain et 1 toilette' },
     { name: 'H\u00e9bergement \u2013 5 chambres, 13 lits', ville: 'Bagneaux', note: '\u26054,67 \u00b7 2 salles de bain' },
@@ -931,9 +930,11 @@
     if (l.note) parent.appendChild(el('span', '', l.note));
   }
   function fillLinks(parent, l) {
-    /* l.maps = adresse ou nom vérifié sur Google Maps ; sinon on pointe le centre du village (pas de recherche par nom, trop ambiguë) */
-    var q = l.maps || DIST[l.ville][3] + ',' + DIST[l.ville][2];
-    parent.appendChild(extLink(l.maps ? 'Maps ↗' : 'Village ↗', 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q)));
+    /* l.maps = lien Google Maps, ou adresse / nom vérifié ; sinon, s'il y a un lien du site ou de réservation, on n'affiche pas de Maps ; à défaut, le centre du village (pas de recherche par nom, trop ambiguë) */
+    if (l.maps || !(l.site || l.url)) {
+      var q = l.maps || DIST[l.ville][3] + ',' + DIST[l.ville][2];
+      parent.appendChild(extLink(l.maps ? 'Maps ↗' : 'Village ↗', /^https?:/.test(q) ? q : 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q)));
+    }
     if (l.site) parent.appendChild(extLink('Site ↗', l.site));
     if (l.url) parent.appendChild(extLink('Réserver →', l.url));
   }
