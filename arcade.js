@@ -16,6 +16,9 @@
   var FEET = 232;             // ligne où se tiennent les mariés et les obstacles
   var GRAV = 1800, JUMP_V = 580;
   var V_START = 250;
+  /* Points : 1 point tous les ~6,7 px, alliance 15, champagne 75, et un cadeau à l’entrée de chaque nouveau biome.
+     Le serveur refuse plus de 0,2 point par milliseconde (voir supabase.sql) : ces valeurs donnent au plus ~0,16 en discothèque. */
+  var DIST_PTS = 0.15, RING_PTS = 15, BOTTLE_PTS = 75, BIOME_BONUS = 500;
   /* Biomes : 0 vignes, 1 village et église, 2 intérieur de l’église, 3 jardin (cocktail), 4 discothèque.
      On passe au suivant dès que le score atteint BIOME_AT ; chacun roule plus vite et resserre les obstacles.
      Au-delà de 700 px/s ou de 0,48 de marge, le score par seconde approcherait ce que le serveur accepte (voir supabase.sql). */
@@ -810,7 +813,7 @@
              biome: 0, edge: 0, banner: 0 };
   }
 
-  function score() { return Math.floor(st.dist / 10) + st.bonus; }
+  function score() { return Math.floor(st.dist * DIST_PTS) + st.bonus; }
 
   function start() {
     st = newState();
@@ -991,7 +994,7 @@
       it = st.items[i]; it.x -= dx;
       if (it.x + it.w < -20) { st.items.splice(i, 1); continue; }
       if (overlap(mine, it)) {
-        var pts = it.kind === 'bottle' ? 50 : 10;
+        var pts = it.kind === 'bottle' ? BOTTLE_PTS : RING_PTS;
         st.bonus += pts; st.items.splice(i, 1);
         st.pops.push({ x: it.x, y: it.y, t: 0, txt: '+' + pts });
         (it.kind === 'bottle' ? sfx.bottle : sfx.ring)();
@@ -1008,6 +1011,8 @@
 
   function nextBiome() {
     st.biome++; st.edge = st.dist; st.banner = 2.8;
+    st.bonus += BIOME_BONUS;
+    st.pops.push({ x: PX + 4, y: FEET - PH - 24, t: 0, txt: '+' + BIOME_BONUS });
     sfx.level();
     if (window.maTrack) window.maTrack('jeu/' + TRACK[st.biome], true);
   }
