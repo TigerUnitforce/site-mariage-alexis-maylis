@@ -16,17 +16,17 @@
   var FEET = 232;             // ligne où se tiennent les mariés et les obstacles
   var GRAV = 1800, JUMP_V = 580;
   var V_START = 250;
-  /* Points : 1 point tous les ~6,7 px, alliance 15, champagne 75, et un cadeau à l’entrée de chaque nouveau biome.
-     Le serveur refuse plus de 0,2 point par milliseconde (voir supabase.sql) : ces valeurs donnent au plus ~0,16 en discothèque. */
-  var DIST_PTS = 0.15, RING_PTS = 15, BOTTLE_PTS = 75, BIOME_BONUS = 500;
+  /* Points : 1 point tous les ~5,6 px, alliance 18, champagne 90, et un cadeau à l’entrée de chaque nouveau biome.
+     Le serveur refuse plus de 0,2 point par milliseconde (voir supabase.sql) : ces valeurs donnent au plus ~0,18 en discothèque. */
+  var DIST_PTS = 0.18, RING_PTS = 18, BOTTLE_PTS = 90, BIOME_BONUS = 1000;
   /* Biomes : 0 vignes, 1 village et église, 2 intérieur de l’église, 3 jardin (cocktail), 4 discothèque.
      On passe au suivant dès que le score atteint BIOME_AT ; chacun roule plus vite et resserre les obstacles.
-     Au-delà de 700 px/s ou de 0,48 de marge, le score par seconde approcherait ce que le serveur accepte (voir supabase.sql). */
+     Au-delà de 700 px/s ou sous 0,48 de marge, le score par seconde approcherait ce que le serveur accepte (voir supabase.sql). */
   var BIOME_AT = [0, 5000, 10000, 15000, 20000];
-  var BIOME_VMAX = [520, 620, 650, 680, 700];        // vitesse de croisière
-  var BIOME_ACC = [5.5, 8, 8, 8, 8];                 // accélération
-  var BIOME_GAP = [0.6, 0.56, 0.53, 0.5, 0.48];      // creux minimal entre deux obstacles (× vitesse)
-  var BIOME_SPREAD = [0.45, 0.3, 0.29, 0.27, 0.26];  // creux aléatoire en plus (× vitesse)
+  var BIOME_VMAX = [520, 570, 600, 630, 660];        // vitesse de croisière
+  var BIOME_ACC = [5.5, 6, 6, 6, 6];                 // accélération
+  var BIOME_GAP = [0.6, 0.62, 0.6, 0.58, 0.56];      // creux minimal entre deux obstacles (× vitesse)
+  var BIOME_SPREAD = [0.45, 0.4, 0.38, 0.36, 0.34];  // creux aléatoire en plus (× vitesse)
   var SIGN = ['', 'ÉGLISE', 'ENTRÉE', 'COCKTAIL', 'DISCO'];
   var TRACK = ['', 'eglise', 'interieur', 'cocktail', 'disco'];
   var BANNER = [null,
