@@ -72,6 +72,18 @@ puis remplacer la valeur de `HASH` par le résultat.
 
 Un jeu d'arcade dans le style 8 bits : les mariés courent vers le domaine, on saute (toucher l'écran, espace ou ↑) par-dessus tracteurs, bottes de paille, vignes et guêpes, en ramassant alliances (+10) et champagne (+50). Un classement partagé désigne le gagnant de la bouteille.
 
+**Les biomes :** le décor change, et la partie devient plus rapide et plus dense, à chaque palier de score.
+
+| Score    | Biome                  | Nouveautés                                                       |
+| -------- | ---------------------- | ---------------------------------------------------------------- |
+| 0        | Les vignes             | tracteurs, bottes de paille, vignes, guêpes                      |
+| 5 000    | Le village et l'église | bancs, cierges, 2CV « jeunes mariés », pigeons (hauts ou bas)    |
+| 10 000   | Dans l'église          | prie-dieu, bénitiers, statues, bancs, colombes                   |
+| 15 000   | Le cocktail au jardin  | haies, mange-debout, pyramides de coupes, ballons                |
+| 20 000   | La discothèque         | enceintes, danseurs, platines, boules à facettes (vitesse max)   |
+
+Les paliers et la difficulté de chaque biome se règlent en tête de `arcade.js` (`BIOME_AT`, `BIOME_VMAX`, `BIOME_ACC`, `BIOME_GAP`, `BIOME_SPREAD`). Ne pas dépasser 700 px/s ni descendre sous 0,48 de marge : le serveur refuse les scores au-delà de 0,2 point par milliseconde (voir `supabase.sql`).
+
 **Comment l'ouvrir** (rien n'est visible sur le site, et il faut avoir saisi le mot de passe) :
 
 - 5 appuis rapides sur le « & » du logo en haut (ou du menu sur mobile) ;
