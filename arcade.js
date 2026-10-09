@@ -54,6 +54,20 @@
     draw(p);
     return c;
   }
+  /* ajoute un contour d’une case autour d’un sprite (le sprite grandit d’une case de chaque côté) */
+  function outlined(src, col) {
+    var w = src.width + 2, h = src.height + 2, c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    var x = c.getContext('2d');
+    x.drawImage(src, 1, 1);
+    var a = x.getImageData(0, 0, w, h).data;
+    function solid(px, py) { return px >= 0 && py >= 0 && px < w && py < h && a[(py * w + px) * 4 + 3] > 0; }
+    x.fillStyle = col;
+    for (var py = 0; py < h; py++) for (var px = 0; px < w; px++) {
+      if (!solid(px, py) && (solid(px - 1, py) || solid(px + 1, py) || solid(px, py - 1) || solid(px, py + 1))) x.fillRect(px, py, 1, 1);
+    }
+    return c;
+  }
   function disc(p, cx, cy, r, col) {
     for (var y = -r; y <= r; y++) for (var x = -r; x <= r; x++) {
       if (x * x + y * y <= r * r + r * 0.5) p(cx + x, cy + y, 1, 1, col);
@@ -167,12 +181,12 @@
       disc(p, 29, 17, 3, INK); disc(p, 29, 17, 1, '#b9b9b9');
     }),
     pigeon: [0, 1].map(function (f) {
-      return sprite(16, 10, function (p) {
-        p(3, 4, 8, 4, '#9aa0ab'); p(4, 6, 6, 2, '#c9ced6');                        // corps
-        p(0, 3, 4, 3, '#7e8590'); p(1, 4, 1, 1, INK); p(0, 5, 1, 1, '#e6a23a');    // tête, œil, bec
-        p(11, 5, 4, 2, '#7e8590');                                                 // queue
-        if (f) p(5, 7, 5, 3, '#b9bec7'); else { p(5, 0, 5, 4, '#b9bec7'); p(6, 0, 3, 1, '#ffffff'); }   // aile
-      });
+      return outlined(sprite(16, 10, function (p) {
+        p(3, 4, 8, 4, '#5d6472'); p(4, 6, 6, 2, '#aab1be');                        // corps
+        p(0, 3, 4, 3, '#434a57'); p(3, 4, 2, 1, '#6fae9a'); p(1, 4, 1, 1, '#ffffff'); p(0, 5, 1, 1, '#f0a830');   // tête, cou irisé, œil, bec
+        p(11, 5, 4, 2, '#434a57');                                                 // queue
+        if (f) p(5, 7, 5, 3, '#8d95a4'); else { p(5, 0, 5, 4, '#8d95a4'); p(6, 0, 3, 1, '#d6dbe4'); }   // aile
+      }), '#241f2c');
     }),
     statue: sprite(14, 22, function (p) {
       p(1, 16, 12, 6, '#cfc3ad'); p(0, 20, 14, 2, '#b3a58c'); p(1, 16, 12, 1, '#e8e0cf');       // socle
@@ -190,12 +204,12 @@
       p(4, 4, 4, 8, '#b3a58c'); p(3, 12, 6, 1, '#cfc3ad'); p(2, 13, 8, 3, '#cfc3ad'); p(2, 15, 8, 1, '#b3a58c');
     }),
     dove: [0, 1].map(function (f) {
-      return sprite(16, 10, function (p) {
+      return outlined(sprite(16, 10, function (p) {
         p(3, 4, 8, 4, '#fbf7ef'); p(4, 6, 6, 2, '#e2d6c0');
         p(0, 3, 4, 3, '#fbf7ef'); p(1, 4, 1, 1, INK); p(0, 5, 1, 1, '#e6a23a');
         p(11, 5, 4, 2, '#e2d6c0');
         if (f) p(5, 7, 5, 3, '#fbf7ef'); else { p(5, 0, 5, 4, '#fbf7ef'); p(6, 0, 3, 1, '#cfe6f5'); }
-      });
+      }), '#5a4a52');
     }),
     tower: sprite(14, 22, function (p) {                                                      // pyramide de coupes
       var GL = '#dcebf5', CH = '#f2d27a', CL = '#fbf7ef', CD = '#e2d6c0';
@@ -260,8 +274,8 @@
     pew:     { w: 44, h: 24, hit: [3, 3, 38, 21], img: function () { return S.pew; } },
     candle:  { w: 16, h: 52, hit: [3, 2, 10, 50], img: function () { return S.candle; } },
     car:     { w: 72, h: 40, hit: [12, 4, 56, 34], img: function () { return S.car; } },
-    pigeon:  { w: 32, h: 20, hit: [6, 6, 20, 10], img: function (o) { return S.pigeon[Math.floor(o.age * 12) & 1]; } },
-    dove:    { w: 32, h: 20, hit: [6, 6, 20, 10], img: function (o) { return S.dove[Math.floor(o.age * 9) & 1]; } },
+    pigeon:  { w: 36, h: 24, hit: [8, 8, 20, 10], img: function (o) { return S.pigeon[Math.floor(o.age * 12) & 1]; } },
+    dove:    { w: 36, h: 24, hit: [8, 8, 20, 10], img: function (o) { return S.dove[Math.floor(o.age * 9) & 1]; } },
     statue:  { w: 28, h: 44, hit: [4, 2, 20, 42], img: function () { return S.statue; } },
     prie:    { w: 32, h: 24, hit: [2, 2, 28, 22], img: function () { return S.prie; } },
     font:    { w: 24, h: 32, hit: [2, 2, 20, 30], img: function () { return S.font; } },
