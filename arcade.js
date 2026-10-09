@@ -16,9 +16,9 @@
   var FEET = 232;             // ligne où se tiennent les mariés et les obstacles
   var GRAV = 1800, JUMP_V = 580;
   var V_START = 250;
-  /* Points : 1 point tous les ~5,6 px, alliance 18, champagne 90, et un cadeau à l’entrée de chaque nouveau biome.
-     Le serveur refuse plus de 0,2 point par milliseconde (voir supabase.sql) : ces valeurs donnent au plus ~0,18 en discothèque. */
-  var DIST_PTS = 0.18, RING_PTS = 18, BOTTLE_PTS = 90, BIOME_BONUS = 1000;
+  /* Points : 1 point tous les ~5,6 px, alliance 40, champagne 200, et un cadeau à l’entrée de chaque nouveau biome.
+     Le serveur refuse plus de 0,5 point par milliseconde (voir supabase.sql) : ces valeurs donnent au plus ~0,25 en discothèque. */
+  var DIST_PTS = 0.18, RING_PTS = 40, BOTTLE_PTS = 200, BIOME_BONUS = 1000;
   /* Biomes : 0 vignes, 1 village et église, 2 intérieur de l’église, 3 jardin (cocktail), 4 discothèque.
      On passe au suivant dès que le score atteint BIOME_AT ; chacun roule plus vite et resserre les obstacles.
      Au-delà de 700 px/s ou sous 0,48 de marge, le score par seconde approcherait ce que le serveur accepte (voir supabase.sql). */
@@ -924,20 +924,18 @@
         gw = 84; top = 44;
       }
     } else if (st.biome === 1) {
-      /* village : bancs, cierges, 2CV, et des pigeons qu’il faut tantôt éviter par le haut, tantôt laisser passer au-dessus */
-      if (r < 0.17) {
+      /* village : bancs, cierges, 2CV, et des pigeons en hauteur qu’il faut laisser passer sans sauter */
+      if (r < 0.2) {
         flyer('pigeon', FEET - 104 + Math.random() * 10, 6);        // en hauteur : ne pas sauter
-      } else if (r < 0.33) {
-        flyer('pigeon', FEET - 54, 3);                              // à hauteur de poitrine : sauter
-      } else if (r < 0.52) {
+      } else if (r < 0.43) {
         n = 1 + Math.floor(Math.random() * 3);
         for (i = 0; i < n; i++) add('pew', x + i * 44);
         gw = n * 44; top = 24;
-      } else if (r < 0.68) {
+      } else if (r < 0.62) {
         n = Math.random() < 0.4 ? 2 : 1;
         for (i = 0; i < n; i++) add('candle', x + i * 34);
         gw = n * 34 - 18; top = 52;
-      } else if (r < 0.84) {
+      } else if (r < 0.81) {
         add('car', x); gw = 72; top = 40;
       } else {
         add('pew', x); add('candle', x + 66);                       // banc puis cierge : un seul saut suffit, mais bien placé

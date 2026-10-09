@@ -70,19 +70,19 @@ puis remplacer la valeur de `HASH` par le résultat.
 
 ## Mini-jeu caché : « La course vers l'autel »
 
-Un jeu d'arcade dans le style 8 bits : les mariés courent vers le domaine, on saute (toucher l'écran, espace ou ↑) par-dessus tracteurs, bottes de paille, vignes et guêpes, en ramassant alliances (+18) et champagne (+90). Un classement partagé désigne le gagnant de la bouteille.
+Un jeu d'arcade dans le style 8 bits : les mariés courent vers le domaine, on saute (toucher l'écran, espace ou ↑) par-dessus tracteurs, bottes de paille, vignes et guêpes, en ramassant alliances (+40) et champagne (+200). Un classement partagé désigne le gagnant de la bouteille.
 
 **Les biomes :** le décor change, et la partie devient plus rapide et plus dense, à chaque palier de score. Entrer dans un nouveau biome rapporte 1 000 points.
 
 | Score    | Biome                  | Nouveautés                                                       |
 | -------- | ---------------------- | ---------------------------------------------------------------- |
 | 0        | Les vignes             | tracteurs, bottes de paille, vignes, guêpes                      |
-| 5 000    | Le village et l'église | bancs, cierges, 2CV « jeunes mariés », pigeons (hauts ou bas)    |
+| 5 000    | Le village et l'église | bancs, cierges, 2CV « jeunes mariés », pigeons en hauteur         |
 | 10 000   | Dans l'église          | prie-dieu, bénitiers, statues, bancs, colombes                   |
 | 15 000   | Le cocktail au jardin  | haies, mange-debout, pyramides de coupes, ballons                |
 | 20 000   | La discothèque         | enceintes, danseurs, platines, boules à facettes (vitesse max)   |
 
-Les paliers et la difficulté de chaque biome se règlent en tête de `arcade.js` (`BIOME_AT`, `BIOME_VMAX`, `BIOME_ACC`, `BIOME_GAP`, `BIOME_SPREAD`). Ne pas dépasser 700 px/s ni descendre sous 0,48 de marge : le serveur refuse les scores au-delà de 0,2 point par milliseconde (voir `supabase.sql`). Avec les points actuels (`DIST_PTS`, `RING_PTS`, `BOTTLE_PTS`, `BIOME_BONUS`), le maximum atteint est d'environ 0,18 en discothèque : peu de marge, donc si on augmente les points, relever aussi cette limite dans `supabase.sql` (fonction `submit_score`, `p_ms / 5`) et la rejouer dans Supabase.
+Les paliers et la difficulté de chaque biome se règlent en tête de `arcade.js` (`BIOME_AT`, `BIOME_VMAX`, `BIOME_ACC`, `BIOME_GAP`, `BIOME_SPREAD`). Ne pas dépasser 700 px/s ni descendre sous 0,48 de marge : le serveur refuse les scores au-delà de 0,5 point par milliseconde (voir `supabase.sql`). Avec les points actuels (`DIST_PTS`, `RING_PTS`, `BOTTLE_PTS`, `BIOME_BONUS`), le maximum atteint est d'environ 0,25 en discothèque. Si on augmente encore les points, relever aussi cette limite dans `supabase.sql` (fonction `submit_score`, `p_ms / 2`) **et rejouer le script dans Supabase** : sans cela, les scores trop élevés sont refusés à l'envoi.
 
 **Comment l'ouvrir** (rien n'est visible sur le site, et il faut avoir saisi le mot de passe) :
 
