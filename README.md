@@ -11,7 +11,7 @@ Site du mariage de Maÿlis & Alexis, le **30 juillet 2027** dans l'Yonne.
 - **Le jour J** : déroulé de la journée, cartes Google Maps (église et domaine), liens pour ouvrir Maps, accès en voiture / train / taxi
 - **Liste de mariage** : lien vers la liste chez Mille Mercis Mariage
 
-Le tout tient dans un seul fichier, sans outil de build ni dépendance : HTML, CSS et JavaScript.
+Le site tient dans un seul fichier, sans outil de build ni dépendance : HTML, CSS et JavaScript. Seul le mini-jeu caché (voir plus bas) vit dans son propre fichier, `arcade.js`, chargé uniquement quand on le déclenche.
 
 ## Structure
 
@@ -19,6 +19,8 @@ Le tout tient dans un seul fichier, sans outil de build ni dépendance : HTML, C
 |-------------------|------------------------------------------------------------------|
 | `index.html`      | Tout le site (structure, styles, scripts)                        |
 | `images/`         | Photos du hero (versions desktop et mobile, au format WebP)      |
+| `arcade.js`       | Mini-jeu caché « La course vers l’autel » (voir plus bas)        |
+| `supabase.sql`    | Script de création du classement du mini-jeu                     |
 | `INDEX.md`        | Plan détaillé de `index.html` pour retrouver vite ce qu'on veut modifier |
 
 ## Le voir en local
@@ -60,6 +62,27 @@ printf 'maylis-alexis:NOUVEAUCODE' | shasum -a 256
 puis remplacer la valeur de `HASH` par le résultat.
 
 **Limite à connaître :** GitHub Pages ne sert que des fichiers statiques et n'exécute aucun code côté serveur. Ce mot de passe est donc un simple filtre dans le navigateur, qui écarte les curieux mais ne protège pas des informations sensibles : quelqu'un qui lit le code de la page peut le contourner. Ne mettez rien de confidentiel sur ce site (adresses privées, numéros personnels, etc.).
+
+## Mini-jeu caché : « La course vers l'autel »
+
+Un jeu d'arcade dans le style 8 bits : les mariés courent vers le domaine, on saute (toucher l'écran, espace ou ↑) par-dessus tracteurs, bottes de paille, vignes et guêpes, en ramassant alliances (+10) et champagne (+50). Un classement partagé désigne le gagnant de la bouteille.
+
+**Comment l'ouvrir** (rien n'est visible sur le site, et il faut avoir saisi le mot de passe) :
+
+- 5 appuis rapides sur le « & » du logo en haut (ou du menu sur mobile) ;
+- le code Konami au clavier (↑ ↑ ↓ ↓ ← → ← → B A) ;
+- ou l'adresse `…/#jeu`, pratique à envoyer dans un message.
+
+**Classement partagé** (déjà branché sur le projet Supabase `pfgkwzgzbtowgqslxlux` ; sans URL ni clé dans `arcade.js`, le jeu fonctionne mais chaque appareil ne voit que ses propres scores). Pour le refaire dans un autre projet :
+
+1. Créer un projet gratuit sur [supabase.com](https://supabase.com).
+2. Dans *SQL Editor*, coller le contenu de `supabase.sql` et l'exécuter.
+3. Dans *Project Settings → API*, copier l'URL du projet et la clé « anon / publishable ».
+4. Les coller dans `SUPABASE_URL` et `SUPABASE_KEY`, en tête de `arcade.js`. Cette clé est publique par conception : la table n'est accessible que par les deux fonctions du script SQL.
+
+**Fin du concours :** `FIN` en tête de `arcade.js` (et la date dans `supabase.sql`, fonction `submit_score`) fixe la date après laquelle les scores ne sont plus enregistrés. Par défaut, le 30 juillet 2027 à minuit.
+
+**Gérer les scores :** dans Supabase, *Table Editor → scores* permet de supprimer une ligne (pseudo déplacé, score douteux). Le serveur refuse les scores invraisemblables, mais le temps de partie est annoncé par le navigateur : avant de donner la bouteille, faire rejouer le gagnant devant soi.
 
 ## Brancher un nom de domaine
 

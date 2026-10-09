@@ -182,6 +182,7 @@
     padding: 24px 56px; animation: fade-in 1s .2s ease both;
     font: 400 11px/1 var(--fj); letter-spacing: .28em; text-transform: uppercase;
   }
+  [data-secret] { display: inline-block; padding: 12px 7px; margin: -12px -7px; }
   .topnav .brand { justify-self: center; color: var(--ink); font-family: var(--f); font-style: italic; font-size: 22px; letter-spacing: .04em; text-transform: none; }
   .topnav .left { justify-self: start; color: var(--ink); }
   .topnav .nav-group { display: flex; gap: 34px; }
@@ -554,14 +555,14 @@
     <a class="nav-link" href="#" data-goto="jourj">Le jour J</a>
     <a class="nav-link" href="#" data-goto="hebergements">Hébergements</a>
   </div>
-  <a class="brand" href="#" data-goto="accueil">Maÿlis &amp; Alexis</a>
+  <a class="brand" href="#" data-goto="accueil">Maÿlis <span data-secret>&amp;</span> Alexis</a>
   <a class="right nav-link" href="#" data-goto="liste">Liste de mariage</a>
   <button class="burger" aria-label="Ouvrir le menu" id="burger-btn"><span></span><span></span></button>
 </div>
 
 <div class="menu-overlay" id="menu-overlay">
   <div class="menu-top">
-    <span>M &amp; A</span>
+    <span>M <span data-secret>&amp;</span> A</span>
     <button class="menu-close" id="menu-close">Fermer ✕</button>
   </div>
   <div class="menu-links">
@@ -872,6 +873,41 @@
 
   document.getElementById('burger-btn').addEventListener('click', openMenu);
   document.getElementById('menu-close').addEventListener('click', closeMenu);
+
+  /* ---------- jeu caché (arcade.js, chargé seulement à la demande) ----------
+     Ouvert par : 5 appuis rapides sur le « & » (logo ou menu mobile), le code Konami au clavier,
+     ou l'adresse se terminant par #jeu. Ne marche pas tant que le mot de passe n'est pas saisi. */
+  var arcadeLoading = false;
+  function openArcade() {
+    if (document.documentElement.classList.contains('locked')) return;
+    if (window.MaArcade) { window.MaArcade.open(); return; }
+    if (arcadeLoading) return;
+    arcadeLoading = true;
+    var s = document.createElement('script');
+    s.src = 'arcade.js';
+    s.onload = function () { arcadeLoading = false; window.MaArcade.open(); };
+    s.onerror = function () { arcadeLoading = false; };
+    document.head.appendChild(s);
+  }
+  var secretTaps = [];
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest || !e.target.closest('[data-secret]')) return;
+    e.preventDefault(); e.stopPropagation();
+    var now = Date.now();
+    secretTaps = secretTaps.filter(function (t) { return now - t < 2500; });
+    secretTaps.push(now);
+    if (secretTaps.length < 5) return;
+    secretTaps = [];
+    closeMenu();
+    openArcade();
+  }, true);
+  var KONAMI = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'], konamiAt = 0;
+  document.addEventListener('keydown', function (e) {
+    var k = (e.key || '').toLowerCase();
+    konamiAt = k === KONAMI[konamiAt] ? konamiAt + 1 : (k === KONAMI[0] ? 1 : 0);
+    if (konamiAt === KONAMI.length) { konamiAt = 0; openArcade(); }
+  });
+  if (location.hash === '#jeu') openArcade();
 
   /* ---------- compte à rebours (cérémonie : 30/07/2027, 15h30 heure de Paris) ---------- */
   var countdown = document.getElementById('countdown');
