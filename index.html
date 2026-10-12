@@ -286,9 +286,19 @@
   .closing { text-align: center; padding: 110px 56px; margin-top: 96px; }
   .closing .line1 { font: 500 74px/1.1 var(--f); letter-spacing: -.02em; max-width: 22ch; margin: 0 auto; color: var(--disp); }
 
-  .site-footer { background: var(--green); color: var(--on-green); text-align: center; padding: 64px 56px; }
+  .site-footer { position: relative; background: var(--green); color: var(--on-green); text-align: center; padding: 64px 56px; }
   .site-footer .names { font: 400 34px/1.2 var(--f); color: var(--on-green); }
   .site-footer .meta { margin-top: 14px; font: 400 12px/1 var(--fj); letter-spacing: .3em; text-transform: uppercase; color: var(--on-green-muted); }
+  /* les deux petits mariés du mini-jeu : bouton muet en bas à droite (2 images de 26 × 24 px, agrandies) */
+  .game-link { --s: 3; position: absolute; right: 24px; bottom: 18px; padding: 8px; background: none; border: none; cursor: pointer; line-height: 0; -webkit-tap-highlight-color: transparent; }
+  .game-link span {
+    display: block; width: calc(26px * var(--s)); height: calc(24px * var(--s));
+    background: url(images/couple-jeu.png) 0 0 / calc(52px * var(--s)) calc(24px * var(--s)) no-repeat;
+    image-rendering: pixelated; transition: transform .2s;
+  }
+  .game-link:hover span, .game-link:focus-visible span { animation: couple-run .32s steps(1) infinite; transform: translateY(-4px); }
+  .game-link:focus-visible { outline: 1px solid var(--on-green-muted); outline-offset: 2px; }
+  @keyframes couple-run { 0% { background-position: 0 0; } 50% { background-position: calc(-26px * var(--s)) 0; } }
 
   /* ---------- LE JOUR J ---------- */
   .page-head { text-align: center; padding: 66px 56px 0; }
@@ -502,6 +512,7 @@
     .site-footer { padding: 40px 22px; }
     .site-footer .names { font-size: 27px; }
     .site-footer .meta { font-size: 11px; letter-spacing: .28em; }
+    .game-link { --s: 2; right: 10px; bottom: 8px; }
 
     .page-head { padding: 46px 22px 0; }
     .page-head h1 { font-size: 40px; line-height: 1.08; }
@@ -661,6 +672,7 @@
   <div class="site-footer">
     <div class="names">Maÿlis &amp; Alexis</div>
     <div class="meta">30 juillet 2027</div>
+    <button class="game-link" type="button" aria-label="Jouer au mini-jeu"><span></span></button>
   </div>
 </section>
 
@@ -889,8 +901,8 @@
   document.getElementById('menu-close').addEventListener('click', closeMenu);
 
   /* ---------- jeu caché (arcade.js, chargé seulement à la demande) ----------
-     Ouvert par : 5 appuis rapides sur le « & » (logo ou menu mobile), le code Konami au clavier,
-     ou l'adresse se terminant par #jeu. Ne marche pas tant que le mot de passe n'est pas saisi. */
+     Ouvert par : les deux petits mariés en bas à droite de l'accueil, 5 appuis rapides sur le « & »
+     (logo ou menu mobile), le code Konami au clavier, ou l'adresse se terminant par #jeu. Ne marche pas tant que le mot de passe n'est pas saisi. */
   var arcadeLoading = false;
   function openArcade() {
     if (document.documentElement.classList.contains('locked')) return;
@@ -903,6 +915,9 @@
     s.onerror = function () { arcadeLoading = false; };
     document.head.appendChild(s);
   }
+  document.addEventListener('click', function (e) {
+    if (e.target.closest && e.target.closest('.game-link')) openArcade();
+  });
   var secretTaps = [];
   document.addEventListener('click', function (e) {
     if (!e.target.closest || !e.target.closest('[data-secret]')) return;
@@ -1290,7 +1305,7 @@
     mark('.split .ph, .split .text', 'rv', 160);
     mark('.registry-cta > *', 'rv', 110);
     mark('.closing > *', 'rv', 140);
-    mark('.site-footer > *', 'rv', 120);
+    mark('.site-footer > :not(.game-link)', 'rv', 120);
 
     mark('.page-head > *', 'rv', 120);
     document.querySelectorAll('.t-grid > *').forEach(function (el, i) {

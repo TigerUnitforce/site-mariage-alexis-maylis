@@ -84,8 +84,9 @@ Un jeu d'arcade dans le style 8 bits : les mariés courent vers le domaine, on s
 
 Les paliers et la difficulté de chaque biome se règlent en tête de `arcade.js` (`BIOME_AT`, `BIOME_VMAX`, `BIOME_ACC`, `BIOME_GAP`, `BIOME_SPREAD`). Ne pas dépasser 700 px/s ni descendre sous 0,48 de marge : le serveur refuse les scores au-delà de 0,5 point par milliseconde (voir `supabase.sql`). Avec les points actuels (`DIST_PTS`, `RING_PTS`, `BOTTLE_PTS`, `BIOME_BONUS`), le maximum atteint est d'environ 0,25 en discothèque. Si on augmente encore les points, relever aussi cette limite dans `supabase.sql` (fonction `submit_score`, `p_ms / 2`) **et rejouer le script dans Supabase** : sans cela, les scores trop élevés sont refusés à l'envoi.
 
-**Comment l'ouvrir** (rien n'est visible sur le site, et il faut avoir saisi le mot de passe) :
+**Comment l'ouvrir** (il faut avoir saisi le mot de passe) :
 
+- cliquer sur les deux petits mariés en bas à droite de la page d'accueil (`images/couple-jeu.png`, sans texte) ;
 - 5 appuis rapides sur le « & » du logo en haut (ou du menu sur mobile) ;
 - le code Konami au clavier (↑ ↑ ↓ ↓ ← → ← → B A) ;
 - ou l'adresse `…/#jeu`, pratique à envoyer dans un message.
