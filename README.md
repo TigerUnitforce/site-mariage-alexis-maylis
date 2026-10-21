@@ -70,7 +70,7 @@ puis remplacer la valeur de `HASH` par le résultat.
 
 ## Mini-jeu caché : « La course vers l'autel »
 
-Un jeu d'arcade dans le style 8 bits : les mariés courent vers le domaine, on saute (toucher l'écran, espace ou ↑) par-dessus tracteurs, bottes de paille, vignes et guêpes, en ramassant alliances (+40) et champagne (+200). Un classement partagé désigne le gagnant de la bouteille.
+Un jeu d'arcade dans le style 8 bits : les mariés courent vers le domaine, on saute (toucher l'écran, espace ou ↑) par-dessus tracteurs, bottes de paille, vignes et guêpes, en ramassant alliances (+40) et champagne (+200). Un classement partagé désigne le gagnant du lot.
 
 **Les biomes :** le décor change, et la partie devient plus rapide et plus dense, à chaque palier de score. Entrer dans un nouveau biome rapporte 1 000 points.
 
@@ -100,7 +100,7 @@ Les paliers et la difficulté de chaque biome se règlent en tête de `arcade.js
 
 **Fin du concours :** `FIN` en tête de `arcade.js` (et la date dans `supabase.sql`, fonction `submit_score`) fixe la date après laquelle les scores ne sont plus enregistrés. Par défaut, le 30 juillet 2027 à minuit.
 
-**Gérer les scores :** dans Supabase, *Table Editor → scores* permet de supprimer une ligne (pseudo déplacé, score douteux). Le serveur refuse les scores invraisemblables, mais le temps de partie est annoncé par le navigateur : avant de donner la bouteille, faire rejouer le gagnant devant soi.
+**Gérer les scores :** dans Supabase, *Table Editor → scores* permet de supprimer une ligne (pseudo déplacé, score douteux). Le serveur refuse les scores invraisemblables, mais le temps de partie est annoncé par le navigateur : avant de donner le lot, faire rejouer le gagnant devant soi.
 
 ## Aperçu quand on partage le lien
 

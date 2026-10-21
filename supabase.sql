@@ -14,7 +14,7 @@ alter table public.scores enable row level security;
 -- Enregistre un score. Refuse les valeurs invraisemblables : au-delà de 0,5 point par milliseconde de partie
 -- (jouée à la perfection, le jeu en rapporte environ 0,25), les parties de moins de 3 s ou de plus de 30 min, et tout envoi après le mariage.
 -- Ce n’est pas une protection absolue (le temps de partie est annoncé par le navigateur) :
--- avant de remettre la bouteille, vérifiez le score du gagnant en le faisant rejouer.
+-- avant de remettre le lot, vérifiez le score du gagnant en le faisant rejouer.
 create or replace function public.submit_score(p_name text, p_score int, p_ms int)
 returns void
 language plpgsql

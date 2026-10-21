@@ -1191,7 +1191,7 @@
     el.head.textContent = 'La course vers l’autel';
     el.big.hidden = true; el.form.hidden = true;
     el.lead.textContent = Date.now() < FIN
-      ? 'Les mariés courent jusqu’au domaine. Sautez par-dessus les obstacles, ramassez alliances et champagne. Le meilleur score gagne une bouteille !'
+      ? 'Les mariés courent jusqu’au domaine. Sautez par-dessus les obstacles, ramassez alliances et champagne. Le meilleur score remporte un lot !'
       : 'Le concours est terminé, mais rien ne vous empêche de jouer pour le plaisir.';
     el.play.textContent = 'Jouer';
     el.panel.hidden = false;
