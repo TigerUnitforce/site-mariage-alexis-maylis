@@ -82,7 +82,7 @@ Un jeu d'arcade dans le style 8 bits : les mariés courent vers le domaine, on s
 | 15 000   | Le cocktail au jardin  | haies, mange-debout, pyramides de coupes, ballons                |
 | 20 000   | La discothèque         | enceintes, danseurs, platines, boules à facettes (vitesse max)   |
 
-Les paliers et la difficulté de chaque biome se règlent en tête de `arcade.js` (`BIOME_AT`, `BIOME_VMAX`, `BIOME_ACC`, `BIOME_GAP`, `BIOME_SPREAD`). Ne pas dépasser 700 px/s ni descendre sous 0,48 de marge : le serveur refuse les scores au-delà de 0,5 point par milliseconde (voir `supabase.sql`). Avec les points actuels (`DIST_PTS`, `RING_PTS`, `BOTTLE_PTS`, `BIOME_BONUS`), le maximum atteint est d'environ 0,25 en discothèque. Si on augmente encore les points, relever aussi cette limite dans `supabase.sql` (fonction `submit_score`, `p_ms / 2`) **et rejouer le script dans Supabase** : sans cela, les scores trop élevés sont refusés à l'envoi.
+Les paliers et la difficulté de chaque biome se règlent en tête de `arcade.js` (`BIOME_AT`, `BIOME_VMAX`, `BIOME_ACC`, `BIOME_GAP`, `BIOME_SPREAD`). Ne pas dépasser 700 px/s ni descendre sous 0,48 de marge : le serveur refuse les scores au-delà de 0,3 point par milliseconde de partie (voir `supabase.sql`). Avec les points actuels (`DIST_PTS`, `RING_PTS`, `BOTTLE_PTS`, `BIOME_BONUS`), le maximum atteint est d'environ 0,25 en discothèque. Si on augmente encore les points, relever aussi cette limite dans `supabase.sql` (fonction `submit_score`, `v_ms * 3 / 10`) **et rejouer le script dans Supabase** : sans cela, les scores trop élevés sont refusés à l'envoi.
 
 **Comment l'ouvrir** (il faut avoir saisi le mot de passe) :
 
@@ -96,11 +96,11 @@ Les paliers et la difficulté de chaque biome se règlent en tête de `arcade.js
 1. Créer un projet gratuit sur [supabase.com](https://supabase.com).
 2. Dans *SQL Editor*, coller le contenu de `supabase.sql` et l'exécuter.
 3. Dans *Project Settings → API*, copier l'URL du projet et la clé « anon / publishable ».
-4. Les coller dans `SUPABASE_URL` et `SUPABASE_KEY`, en tête de `arcade.js`. Cette clé est publique par conception : la table n'est accessible que par les deux fonctions du script SQL.
+4. Les coller dans `SUPABASE_URL` et `SUPABASE_KEY`, en tête de `arcade.js`. Cette clé est publique par conception : les tables ne sont accessibles que par les fonctions du script SQL.
 
 **Fin du concours :** `FIN` en tête de `arcade.js` (et la date dans `supabase.sql`, fonction `submit_score`) fixe la date après laquelle les scores ne sont plus enregistrés. Par défaut, le 30 juillet 2027 à minuit.
 
-**Gérer les scores :** dans Supabase, *Table Editor → scores* permet de supprimer une ligne (pseudo déplacé, score douteux). Le serveur refuse les scores invraisemblables, mais le temps de partie est annoncé par le navigateur : avant de donner le lot, faire rejouer le gagnant devant soi.
+**Gérer les scores :** dans Supabase, *Table Editor → scores* permet de supprimer une ligne (pseudo déplacé, score douteux). Chaque partie demande un ticket au serveur (`start_game`), qui note lui-même l'heure de départ ; le score n'est accepté qu'une fois par ticket et s'il est vraisemblable pour le temps réellement écoulé (colonne `elapsed_ms`). Un tricheur patient peut encore annoncer un score à la hauteur du temps passé : avant de donner le lot, faire rejouer le gagnant devant soi.
 
 ## Aperçu quand on partage le lien
 

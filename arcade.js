@@ -17,7 +17,7 @@
   var GRAV = 1800, JUMP_V = 580;
   var V_START = 250;
   /* Points : 1 point tous les ~5,6 px, alliance 40, champagne 200, et un cadeau à l’entrée de chaque nouveau biome.
-     Le serveur refuse plus de 0,5 point par milliseconde (voir supabase.sql) : ces valeurs donnent au plus ~0,25 en discothèque. */
+     Le serveur refuse plus de 0,3 point par milliseconde de partie (voir supabase.sql) : ces valeurs donnent au plus ~0,25 en discothèque. */
   var DIST_PTS = 0.18, RING_PTS = 40, BOTTLE_PTS = 200, BIOME_BONUS = 1000;
   /* Biomes : 0 vignes, 1 village et église, 2 intérieur de l’église, 3 jardin (cocktail), 4 discothèque.
      On passe au suivant dès que le score atteint BIOME_AT ; chacun roule plus vite et resserre les obstacles.
@@ -824,13 +824,21 @@
   function newState() {
     return { t: 0, ms: 0, anim: 0, dist: 0, bonus: 0, speed: V_START, py: 0, vy: 0, onGround: true,
              buffer: 0, obs: [], items: [], pops: [], nextAt: 520, shake: 0, submitted: false, shown: -1,
-             biome: 0, edge: 0, banner: 0 };
+             biome: 0, edge: 0, banner: 0, game: null };
   }
 
   function score() { return Math.floor(st.dist * DIST_PTS) + st.bonus; }
 
   function start() {
     st = newState();
+    // ticket de partie : le serveur note l’heure de départ et s’en sert pour juger le score envoyé
+    if (online && Date.now() < FIN) {
+      st.game = api('start_game').then(function (r) {
+        if (!r.ok) throw new Error(r.status);
+        return r.json();
+      });
+      st.game.catch(function () {});
+    }
     mode = 'play';
     el.panel.hidden = true;
     root.focus();
@@ -1174,7 +1182,10 @@
       lsSet(LS_LOCAL, JSON.stringify(bestPerName(rows).slice(0, 30)));
       done(); return;
     }
-    api('submit_score', { p_name: name, p_score: sc, p_ms: Math.round(st.ms) }).then(function (r) {
+    if (!st.game) { el.send.disabled = false; el.msg.textContent = 'Envoi impossible pour cette partie.'; return; }
+    st.game.then(function (game) {
+      return api('submit_score', { p_game: game, p_name: name, p_score: sc });
+    }).then(function (r) {
       if (!r.ok) throw new Error(r.status);
       done();
     }).catch(function () {
