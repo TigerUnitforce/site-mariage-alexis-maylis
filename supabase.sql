@@ -86,6 +86,10 @@ begin
     if coalesce(p_jumps, 0) < 0 or coalesce(p_jumps, 0) > p_frames then raise exception 'sauts incohérents'; end if;
     v_inputs := coalesce(jsonb_array_length(p_replay -> 'inputs'), 0);
     if v_inputs > p_frames then raise exception 'rejeu incohérent'; end if;
+    -- anti-gonflage : on refuse un rejeu anormalement gros
+    if v_inputs > 6000 or (p_replay is not null and length(p_replay::text) > 80000) then
+      raise exception 'rejeu trop volumineux';
+    end if;
   end if;
   insert into public.scores (name, score, elapsed_ms, frames, jumps, replay)
     values (v_name, p_score, v_ms, p_frames, p_jumps, p_replay);
