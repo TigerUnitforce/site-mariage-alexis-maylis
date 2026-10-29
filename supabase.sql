@@ -7,8 +7,11 @@ create table if not exists public.scores (
   score      int         not null check (score between 0 and 1000000),
   created_at timestamptz not null default now()
 );
--- Durée de la partie mesurée par le serveur, pour repérer un score douteux dans Table Editor.
-alter table public.scores add column if not exists elapsed_ms int;
+-- Colonnes ajoutées pour repérer et vérifier un score douteux depuis Table Editor.
+alter table public.scores add column if not exists elapsed_ms int;    -- durée mesurée par le serveur
+alter table public.scores add column if not exists frames     int;    -- nombre de pas de jeu (60/s)
+alter table public.scores add column if not exists jumps      int;    -- nombre de sauts
+alter table public.scores add column if not exists replay     jsonb;  -- graine + frames de saut, pour rejouer la partie
 
 -- Une ligne par partie lancée : c’est le serveur qui note l’heure de départ, le navigateur ne la choisit pas.
 create table if not exists public.games (
@@ -21,8 +24,9 @@ create table if not exists public.games (
 alter table public.scores enable row level security;
 alter table public.games  enable row level security;
 
--- Ancienne version, où le navigateur annonçait lui-même la durée de la partie.
+-- Anciennes versions (le navigateur annonçait lui-même la durée, ou le rejeu n’existait pas).
 drop function if exists public.submit_score(text, int, int);
+drop function if exists public.submit_score(uuid, text, int);
 
 -- Appelée au début de chaque partie : renvoie le ticket à présenter avec le score.
 create or replace function public.start_game()
@@ -46,12 +50,16 @@ begin
 end;
 $$;
 
--- Enregistre un score. Le ticket ne sert qu’une fois, et la durée est celle mesurée par le serveur
--- entre start_game et cet envoi : au-delà de 0,3 point par milliseconde (jouée à la perfection,
--- la partie en rapporte environ 0,25), pour une partie de moins de 3 s ou un ticket de plus de 30 min, c’est refusé.
--- Ce n’est pas une protection absolue (un tricheur patient peut garder un ticket ouvert et annoncer
--- un score à la hauteur du temps écoulé) : avant de remettre le lot, faites rejouer le gagnant.
-create or replace function public.submit_score(p_game uuid, p_name text, p_score int)
+-- Enregistre un score. Le ticket ne sert qu’une fois ; la durée est celle mesurée par le serveur
+-- entre start_game et cet envoi. Refuse : au-delà de 0,3 point par milliseconde de partie (jouée
+-- à la perfection, le jeu en rapporte ~0,25), une partie de moins de 3 s ou de plus de 30 min,
+-- un nombre de pas incohérent avec la durée (le jeu tourne à 60 pas/s), ou un rejeu plus long que la partie.
+-- Le rejeu (graine + sauts) est conservé : on peut rejouer la partie d’un gagnant pour vérifier son score
+-- (window.MaArcadeVerify(seed, inputs) dans la console du site renvoie le score reproduit).
+-- Ce n’est pas une protection absolue : avant de remettre le lot, faites rejouer le gagnant devant vous.
+create or replace function public.submit_score(
+  p_game uuid, p_name text, p_score int,
+  p_frames int default null, p_jumps int default null, p_replay jsonb default null)
 returns void
 language plpgsql
 security definer
@@ -61,6 +69,7 @@ declare
   v_name    text := left(regexp_replace(btrim(coalesce(p_name, '')), '\s+', ' ', 'g'), 16);
   v_started timestamptz;
   v_ms      int;
+  v_inputs  int;
 begin
   if now() >= timestamptz '2027-07-30 00:00:00+02' then raise exception 'concours terminé'; end if;
   if char_length(v_name) < 1 then raise exception 'prénom manquant'; end if;
@@ -71,7 +80,15 @@ begin
   v_ms := floor(extract(epoch from now() - v_started) * 1000);
   if v_ms < 3000 or v_ms > 1800000 then raise exception 'durée invalide'; end if;
   if p_score is null or p_score < 1 or p_score > v_ms * 3 / 10 then raise exception 'score invalide'; end if;
-  insert into public.scores (name, score, elapsed_ms) values (v_name, p_score, v_ms);
+  -- Cohérence du rejeu avec le temps réellement écoulé (le jeu avance de 60 pas par seconde).
+  if p_frames is not null then
+    if p_frames < 1 or p_frames > ceil(v_ms * 0.08) + 120 then raise exception 'durée de jeu incohérente'; end if;
+    if coalesce(p_jumps, 0) < 0 or coalesce(p_jumps, 0) > p_frames then raise exception 'sauts incohérents'; end if;
+    v_inputs := coalesce(jsonb_array_length(p_replay -> 'inputs'), 0);
+    if v_inputs > p_frames then raise exception 'rejeu incohérent'; end if;
+  end if;
+  insert into public.scores (name, score, elapsed_ms, frames, jumps, replay)
+    values (v_name, p_score, v_ms, p_frames, p_jumps, p_replay);
 end;
 $$;
 
@@ -94,8 +111,8 @@ as $$
 $$;
 
 revoke all on function public.start_game() from public;
-revoke all on function public.submit_score(uuid, text, int) from public;
+revoke all on function public.submit_score(uuid, text, int, int, int, jsonb) from public;
 revoke all on function public.top_scores() from public;
 grant execute on function public.start_game() to anon;
-grant execute on function public.submit_score(uuid, text, int) to anon;
+grant execute on function public.submit_score(uuid, text, int, int, int, jsonb) to anon;
 grant execute on function public.top_scores() to anon;

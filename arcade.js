@@ -773,6 +773,19 @@
   var root, cv, ctx, stage, el = {};
   var mode = 'closed';          // closed | ready | play | dying | over
   var st = null, raf = 0, lastT = 0, built = false, best = 0, deadAt = 0;
+  /* Moteur déterministe : pas de temps fixe + tirage pseudo-aléatoire à graine.
+     À graine et saisies identiques, la partie se rejoue à l'identique (score reproductible),
+     ce qui permet de vérifier après coup le score d'un gagnant (voir verifyReplay / supabase.sql). */
+  var STEP = 1 / 60, acc = 0, silent = false;
+  function makeRng(seed) {
+    var a = (seed >>> 0) || 1;
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
   var lastFocus = null;
 
   function pad(n) { return ('00000' + n).slice(-5); }
@@ -824,13 +837,17 @@
   function newState() {
     return { t: 0, ms: 0, anim: 0, dist: 0, bonus: 0, speed: V_START, py: 0, vy: 0, onGround: true,
              buffer: 0, obs: [], items: [], pops: [], nextAt: 520, shake: 0, submitted: false, shown: -1,
-             biome: 0, edge: 0, banner: 0, game: null };
+             biome: 0, edge: 0, banner: 0, game: null,
+             seed: 0, rng: Math.random, frame: 0, inputs: [], inputSet: {}, jumps: 0 };
   }
 
   function score() { return Math.floor(st.dist * DIST_PTS) + st.bonus; }
 
   function start() {
     st = newState();
+    st.seed = (Math.floor(Math.random() * 4294967296)) >>> 0;
+    st.rng = makeRng(st.seed);
+    acc = 0;
     // ticket de partie : le serveur note l’heure de départ et s’en sert pour juger le score envoyé
     if (online && Date.now() < FIN) {
       st.game = api('start_game').then(function (r) {
@@ -845,7 +862,11 @@
     if (window.maTrack) window.maTrack('jeu/partie', true);
   }
 
-  function wantJump() { if (st) st.buffer = 0.13; }
+  function wantJump() {
+    if (!st || mode !== 'play') return;          // la saisie n'est enregistrée que la frame à venir
+    var f = st.frame;
+    if (st.inputs[st.inputs.length - 1] !== f) { st.inputs.push(f); st.inputSet[f] = 1; }
+  }
 
   function onKey(e) {
     if (mode === 'closed') return;
@@ -858,7 +879,7 @@
   }
 
   function spawnGroup() {
-    var x = W + 14, r = Math.random(), gw = 0, top = 0, fly = false, n, i;
+    var x = W + 14, r = st.rng(), gw = 0, top = 0, fly = false, n, i;
     function add(kind, ox) {
       var d = OB[kind];
       st.obs.push({ kind: kind, x: ox, y: FEET - d.h, w: d.w, h: d.h, age: 0 });
@@ -870,15 +891,15 @@
     if (st.biome === 4) {
       /* discothèque : enceintes, danseurs, platines, boules à facettes en vol */
       if (r < 0.14) {
-        flyer('ball', FEET - 108 + Math.random() * 8, 10, 5);       // en hauteur : ne pas sauter
+        flyer('ball', FEET - 108 + st.rng() * 8, 10, 5);       // en hauteur : ne pas sauter
       } else if (r < 0.27) {
         flyer('ball', FEET - 56, 6, 5);                             // bas : sauter
       } else if (r < 0.45) {
-        n = Math.random() < 0.4 ? 2 : 1;
+        n = st.rng() < 0.4 ? 2 : 1;
         for (i = 0; i < n; i++) add('speaker', x + i * 34);
         gw = n * 34 - 6; top = 44;
       } else if (r < 0.62) {
-        n = 1 + Math.floor(Math.random() * 3);
+        n = 1 + Math.floor(st.rng() * 3);
         for (i = 0; i < n; i++) add('dancer', x + i * 34);
         gw = n * 34 - 6; top = 44;
       } else if (r < 0.80) {
@@ -890,15 +911,15 @@
     } else if (st.biome === 3) {
       /* jardin : coupes de champagne, mange-debout, haies, ballons qui flottent */
       if (r < 0.14) {
-        flyer('balloons', FEET - 108 + Math.random() * 8, 12, 4);   // en hauteur : ne pas sauter
+        flyer('balloons', FEET - 108 + st.rng() * 8, 12, 4);   // en hauteur : ne pas sauter
       } else if (r < 0.26) {
         flyer('balloons', FEET - 58, 8, 4);                         // bas : sauter
       } else if (r < 0.46) {
-        n = 1 + Math.floor(Math.random() * 3);
+        n = 1 + Math.floor(st.rng() * 3);
         for (i = 0; i < n; i++) add('hedge', x + i * 40);
         gw = n * 40; top = 28;
       } else if (r < 0.64) {
-        n = Math.random() < 0.4 ? 2 : 1;
+        n = st.rng() < 0.4 ? 2 : 1;
         for (i = 0; i < n; i++) add('table', x + i * 52);
         gw = n * 52 - 20; top = 40;
       } else if (r < 0.82) {
@@ -910,21 +931,21 @@
     } else if (st.biome === 2) {
       /* intérieur de l’église : prie-dieu, bénitiers, statues, bancs, et des colombes */
       if (r < 0.14) {
-        flyer('dove', FEET - 104 + Math.random() * 10, 8, 6);       // en hauteur : ne pas sauter
+        flyer('dove', FEET - 104 + st.rng() * 10, 8, 6);       // en hauteur : ne pas sauter
       } else if (r < 0.26) {
         flyer('dove', FEET - 54, 4, 6);                             // bas : sauter
       } else if (r < 0.44) {
-        n = 1 + Math.floor(Math.random() * 3);
+        n = 1 + Math.floor(st.rng() * 3);
         for (i = 0; i < n; i++) add('prie', x + i * 32);
         gw = n * 32; top = 24;
       } else if (r < 0.58) {
-        n = Math.random() < 0.4 ? 2 : 1;
+        n = st.rng() < 0.4 ? 2 : 1;
         for (i = 0; i < n; i++) add('font', x + i * 40);
         gw = n * 40 - 16; top = 32;
       } else if (r < 0.74) {
         add('statue', x); gw = 28; top = 44;
       } else if (r < 0.88) {
-        n = 2 + Math.floor(Math.random() * 2);
+        n = 2 + Math.floor(st.rng() * 2);
         for (i = 0; i < n; i++) add('pew', x + i * 44);
         gw = n * 44; top = 24;
       } else {
@@ -934,13 +955,13 @@
     } else if (st.biome === 1) {
       /* village : bancs, cierges, 2CV, et des pigeons en hauteur qu’il faut laisser passer sans sauter */
       if (r < 0.2) {
-        flyer('pigeon', FEET - 104 + Math.random() * 10, 6);        // en hauteur : ne pas sauter
+        flyer('pigeon', FEET - 104 + st.rng() * 10, 6);        // en hauteur : ne pas sauter
       } else if (r < 0.43) {
-        n = 1 + Math.floor(Math.random() * 3);
+        n = 1 + Math.floor(st.rng() * 3);
         for (i = 0; i < n; i++) add('pew', x + i * 44);
         gw = n * 44; top = 24;
       } else if (r < 0.62) {
-        n = Math.random() < 0.4 ? 2 : 1;
+        n = st.rng() < 0.4 ? 2 : 1;
         for (i = 0; i < n; i++) add('candle', x + i * 34);
         gw = n * 34 - 18; top = 52;
       } else if (r < 0.81) {
@@ -950,25 +971,25 @@
         gw = 82; top = 52;
       }
     } else if (st.dist > 3000 && r < 0.2) {
-      flyer('wasp', FEET - 104 + Math.random() * 12, 6);
+      flyer('wasp', FEET - 104 + st.rng() * 12, 6);
     } else if (r < 0.5) {
-      n = st.speed > 340 && Math.random() < 0.4 ? 2 : 1;
+      n = st.speed > 340 && st.rng() < 0.4 ? 2 : 1;
       for (i = 0; i < n; i++) add('bale', x + i * 32);
       gw = n * 32; top = 28;
     } else if (r < 0.78 || st.dist < 2400) {
-      n = 1 + Math.floor(Math.random() * 3);
+      n = 1 + Math.floor(st.rng() * 3);
       for (i = 0; i < n; i++) add('vine', x + i * 24);
       gw = n * 24; top = 36;
     } else {
       add('tractor', x); gw = 60; top = 44;
     }
-    if (!fly && Math.random() < 0.65) {               // un bonus au-dessus de l’obstacle
-      var bottle = Math.random() < 0.3;
+    if (!fly && st.rng() < 0.65) {               // un bonus au-dessus de l’obstacle
+      var bottle = st.rng() < 0.3;
       st.items.push({ kind: bottle ? 'bottle' : 'ring', x: x + gw / 2 - (bottle ? 8 : 11),
-                      y: FEET - top - 18 - (bottle ? 34 : 24), w: bottle ? 16 : 22, h: bottle ? 34 : 24, ph: Math.random() * 6 });
+                      y: FEET - top - 18 - (bottle ? 34 : 24), w: bottle ? 16 : 22, h: bottle ? 34 : 24, ph: st.rng() * 6 });
     }
-    var gap = st.speed * BIOME_GAP[st.biome] + 50 + Math.random() * st.speed * BIOME_SPREAD[st.biome];
-    if (gap > 260 && Math.random() < 0.6) {           // une série d’alliances au sol dans le creux
+    var gap = st.speed * BIOME_GAP[st.biome] + 50 + st.rng() * st.speed * BIOME_SPREAD[st.biome];
+    if (gap > 260 && st.rng() < 0.6) {           // une série d’alliances au sol dans le creux
       var c0 = x + gw + gap / 2 - 34;
       for (i = 0; i < 3; i++) st.items.push({ kind: 'ring', x: c0 + i * 34, y: FEET - 40, w: 22, h: 24, ph: i });
     }
@@ -991,7 +1012,7 @@
     var dx = st.speed * dt;
     st.dist += dx;
 
-    if (st.onGround && st.buffer > 0) { st.vy = JUMP_V; st.onGround = false; st.buffer = 0; sfx.jump(); }
+    if (st.onGround && st.buffer > 0) { st.vy = JUMP_V; st.onGround = false; st.buffer = 0; st.jumps++; if (!silent) sfx.jump(); }
     st.buffer = Math.max(0, st.buffer - dt);
     if (!st.onGround) {
       st.vy -= GRAV * dt; st.py += st.vy * dt;
@@ -1017,7 +1038,7 @@
         var pts = it.kind === 'bottle' ? BOTTLE_PTS : RING_PTS;
         st.bonus += pts; st.items.splice(i, 1);
         st.pops.push({ x: it.x, y: it.y, t: 0, txt: '+' + pts });
-        (it.kind === 'bottle' ? sfx.bottle : sfx.ring)();
+        if (!silent) (it.kind === 'bottle' ? sfx.bottle : sfx.ring)();
       }
     }
     for (i = st.pops.length - 1; i >= 0; i--) { st.pops[i].t += dt; if (st.pops[i].t > 0.8) st.pops.splice(i, 1); }
@@ -1025,15 +1046,14 @@
     if (st.biome < BIOME_AT.length - 1 && score() >= BIOME_AT[st.biome + 1]) nextBiome();
     st.banner = Math.max(0, st.banner - dt);
 
-    var s = pad(score());
-    if (s !== st.shown) { st.shown = s; el.score.textContent = s; }
+    if (!silent) { var s = pad(score()); if (s !== st.shown) { st.shown = s; el.score.textContent = s; } }
   }
 
   function nextBiome() {
     st.biome++; st.edge = st.dist; st.banner = 2.8;
     st.bonus += BIOME_BONUS;
     st.pops.push({ x: PX + 4, y: FEET - PH - 24, t: 0, txt: '+' + BIOME_BONUS });
-    sfx.level();
+    if (!silent) sfx.level();
     if (window.maTrack) window.maTrack('jeu/' + TRACK[st.biome], true);
   }
 
@@ -1103,11 +1123,47 @@
 
   function loop(now) {
     raf = requestAnimationFrame(loop);
-    var dt = Math.min(0.05, (now - lastT) / 1000 || 0);
+    var dtReal = (now - lastT) / 1000 || 0;
     lastT = now;
-    update(dt);
+    if (dtReal > 0.25) dtReal = 0.25;              // onglet en arrière-plan : on ne rattrape pas tout
+    if (mode === 'play') {
+      acc += dtReal;
+      var steps = 0;
+      while (acc >= STEP && steps < 6) {
+        if (st.inputSet[st.frame]) st.buffer = 0.13;
+        update(STEP);
+        st.frame++;
+        acc -= STEP;
+        steps++;
+        if (mode !== 'play') break;
+      }
+    } else {
+      update(dtReal);
+    }
     render(now);
   }
+
+  /* Rejoue une partie (graine + frames de saut) sans affichage ni son, et renvoie le score.
+     Même code que la partie en direct : à saisies égales, le score est le même. Sert au contrôle
+     avant envoi et à vérifier après coup le score d'un gagnant. */
+  function simulate(seed, inputs) {
+    var savedSt = st, savedMode = mode, savedSilent = silent, savedDead = deadAt;
+    silent = true;
+    var sim = newState();
+    sim.seed = seed >>> 0; sim.rng = makeRng(sim.seed);
+    inputs.forEach(function (f) { sim.inputSet[f] = 1; });
+    st = sim; mode = 'play';
+    var guard = 0;
+    while (mode === 'play' && guard < 300000) {
+      if (sim.inputSet[sim.frame]) sim.buffer = 0.13;
+      update(STEP);
+      sim.frame++; guard++;
+    }
+    var sc = score(), frames = sim.frame;
+    st = savedSt; mode = savedMode; silent = savedSilent; deadAt = savedDead;
+    return { score: sc, frames: frames };
+  }
+  window.MaArcadeVerify = function (seed, inputs) { return simulate(seed >>> 0, inputs || []); };
 
   /* ---------- classement ---------- */
   function cleanName(s) { return String(s || '').replace(/[\u0000-\u001f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 16); }
@@ -1183,8 +1239,11 @@
       done(); return;
     }
     if (!st.game) { el.send.disabled = false; el.msg.textContent = 'Envoi impossible pour cette partie.'; return; }
+    // on envoie le rejeu (graine + frames de saut) : le score reste vérifiable après coup en le rejouant
+    var replay = { seed: st.seed, inputs: st.inputs.slice(0, 4000) };
     st.game.then(function (game) {
-      return api('submit_score', { p_game: game, p_name: name, p_score: sc });
+      return api('submit_score', { p_game: game, p_name: name, p_score: sc,
+                                   p_frames: st.frame, p_jumps: st.jumps, p_replay: replay });
     }).then(function (r) {
       if (!r.ok) throw new Error(r.status);
       done();

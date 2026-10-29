@@ -100,7 +100,13 @@ Les paliers et la difficulté de chaque biome se règlent en tête de `arcade.js
 
 **Fin du concours :** `FIN` en tête de `arcade.js` (et la date dans `supabase.sql`, fonction `submit_score`) fixe la date après laquelle les scores ne sont plus enregistrés. Par défaut, le 30 juillet 2027 à minuit.
 
-**Gérer les scores :** dans Supabase, *Table Editor → scores* permet de supprimer une ligne (pseudo déplacé, score douteux). Chaque partie demande un ticket au serveur (`start_game`), qui note lui-même l'heure de départ ; le score n'est accepté qu'une fois par ticket et s'il est vraisemblable pour le temps réellement écoulé (colonne `elapsed_ms`). Un tricheur patient peut encore annoncer un score à la hauteur du temps passé : avant de donner le lot, faire rejouer le gagnant devant soi.
+**Gérer les scores :** dans Supabase, *Table Editor → scores* permet de supprimer une ligne (pseudo déplacé, score douteux). Plusieurs garde-fous contre la triche :
+
+- Chaque partie demande un **ticket** au serveur (`start_game`), qui note lui-même l'heure de départ ; le score n'est accepté qu'**une seule fois par ticket** et seulement s'il est vraisemblable pour le temps réellement écoulé (colonne `elapsed_ms`), à 0,3 point/ms au plus.
+- Le jeu est **déterministe** (pas de temps fixe, 60 pas/s, tirage aléatoire à graine). Chaque envoi joint un **rejeu** (graine + frames de saut), conservé dans la colonne `replay`. On peut donc **reproduire la partie d'un gagnant** et retrouver son score : dans la console du site, `MaArcadeVerify(seed, inputs)` (valeurs de la colonne `replay`) renvoie `{ score, frames }`. Un score envoyé « à la main » sans rejeu cohérent se repère ainsi.
+- Le serveur refuse aussi un nombre de pas incohérent avec la durée, un nombre de sauts supérieur au nombre de pas, un rejeu plus long que la partie, et plus de 600 parties lancées en 10 minutes.
+
+**Limite qui demeure :** un tricheur patient peut garder un ticket ouvert et annoncer un score proportionnel au temps écoulé, ou modifier le jeu dans son propre navigateur. Aucune protection côté navigateur n'est absolue. Avant de remettre le lot, **faire rejouer le gagnant devant soi** (et, au besoin, vérifier son rejeu avec `MaArcadeVerify`).
 
 ## Aperçu quand on partage le lien
 
