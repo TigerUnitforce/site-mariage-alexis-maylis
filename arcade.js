@@ -838,7 +838,8 @@
     return { t: 0, ms: 0, anim: 0, dist: 0, bonus: 0, speed: V_START, py: 0, vy: 0, onGround: true,
              buffer: 0, obs: [], items: [], pops: [], nextAt: 520, shake: 0, submitted: false, shown: -1,
              biome: 0, edge: 0, banner: 0, game: null,
-             seed: 0, rng: Math.random, frame: 0, inputs: [], inputSet: {}, jumps: 0 };
+             seed: 0, rng: Math.random, frame: 0, inputs: [], inputSet: {}, jumps: 0,
+             prevPy: 0, lastDx: 0 };
   }
 
   function score() { return Math.floor(st.dist * DIST_PTS) + st.bonus; }
@@ -1007,10 +1008,11 @@
     }
     if (mode !== 'play') return;
 
+    st.prevPy = st.py;                 // pour lisser l'affichage entre deux pas (interpolation)
     st.t += dt; st.ms += dt * 1000; st.anim += dt;
     st.speed = Math.min(BIOME_VMAX[st.biome], st.speed + BIOME_ACC[st.biome] * dt);
     var dx = st.speed * dt;
-    st.dist += dx;
+    st.dist += dx; st.lastDx = dx;
 
     if (st.onGround && st.buffer > 0) { st.vy = JUMP_V; st.onGround = false; st.buffer = 0; st.jumps++; if (!silent) sfx.jump(); }
     st.buffer = Math.max(0, st.buffer - dt);
@@ -1074,25 +1076,33 @@
     if (mode === 'dying' && st.shake > 0) { sx = (Math.random() - 0.5) * 6; sy = (Math.random() - 0.5) * 4; }
     ctx.save(); ctx.translate(sx, sy);
 
-    drawScene(ctx, st.dist, now / 1000, st.biome, W + 16 - (st.dist - st.edge));
+    /* Interpolation d'affichage : on dessine une fraction de pas en avance (alpha = temps accumulé
+       depuis le dernier pas) pour un rendu fluide quel que soit le rafraîchissement de l'écran,
+       sans toucher à la simulation (qui reste déterministe). */
+    var alpha = mode === 'play' ? (acc >= STEP ? 1 : acc / STEP) : 0;
+    var shift = alpha * (st.lastDx || 0);
+    var pyView = st.prevPy + (st.py - st.prevPy) * alpha;
+    var dScene = st.dist + shift;
+
+    drawScene(ctx, dScene, now / 1000, st.biome, W + 16 - (dScene - st.edge));
 
     var i, o, it;
     for (i = 0; i < st.items.length; i++) {
       it = st.items[i];
       var bob = Math.sin(now / 220 + it.ph) * 2;
       var spr = it.kind === 'bottle' ? S.bottle : S.ring;
-      ctx.drawImage(spr, Math.round(it.x), Math.round(it.y + bob), spr.width * 2, spr.height * 2);
+      ctx.drawImage(spr, Math.round(it.x - shift), Math.round(it.y + bob), spr.width * 2, spr.height * 2);
     }
     for (i = 0; i < st.obs.length; i++) {
       o = st.obs[i];
       var im = OB[o.kind].img(o);
-      ctx.drawImage(im, Math.round(o.x), Math.round(o.y), im.width * 2, im.height * 2);
+      ctx.drawImage(im, Math.round(o.x - shift), Math.round(o.y), im.width * 2, im.height * 2);
     }
 
     var f = !st.onGround ? 2 : (Math.floor(st.anim * 9) & 1);
-    var by = FEET - PH - st.py + (st.onGround && f === 1 ? -2 : 0);
+    var by = FEET - PH - pyView + (st.onGround && f === 1 ? -2 : 0);
     ctx.fillStyle = 'rgba(0,0,0,.16)';
-    ctx.beginPath(); ctx.ellipse(PX + 26, FEET + 2, Math.max(8, 22 - st.py * 0.12), 4, 0, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(PX + 26, FEET + 2, Math.max(8, 22 - pyView * 0.12), 4, 0, 0, 7); ctx.fill();
     if (!(mode === 'dying' && Math.floor(now / 70) % 2)) {
       ctx.drawImage(S.couple[mode === 'dying' ? 2 : f], PX, Math.round(by), PW, PH);
     }
@@ -1116,7 +1126,7 @@
     }
     if (mode === 'dying') {
       ctx.fillStyle = '#9B1B30'; ctx.font = '14px "Press Start 2P", ui-monospace, Menlo, monospace';
-      ctx.textAlign = 'center'; ctx.fillText('AÏE !', PX + 26, FEET - PH - st.py - 10); ctx.textAlign = 'left';
+      ctx.textAlign = 'center'; ctx.fillText('AÏE !', PX + 26, FEET - PH - pyView - 10); ctx.textAlign = 'left';
     }
     ctx.restore();
   }
