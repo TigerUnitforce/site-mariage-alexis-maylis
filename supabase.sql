@@ -23,10 +23,16 @@ create table if not exists public.games (
 -- Personne ne peut lire ou écrire les tables directement : tout passe par les fonctions ci-dessous.
 alter table public.scores enable row level security;
 alter table public.games  enable row level security;
+-- En plus, la clé publique n’a aucun droit direct sur ces tables. Supabase lui en donne d’office,
+-- et la RLS ne couvre pas TRUNCATE (vider une table d’un coup) : on retire donc tout. Les fonctions
+-- ci-dessous continuent de marcher, elles agissent avec les droits du propriétaire des tables.
+revoke all on table public.scores, public.games from anon, authenticated;
 
--- Anciennes versions (le navigateur annonçait lui-même la durée, ou le rejeu n’existait pas).
+-- Anciennes versions : le navigateur envoyait lui-même son score. Supprimées : c’est désormais
+-- la fonction serveur enregistrer-score qui rejoue la partie et calcule le score (voir record_score).
 drop function if exists public.submit_score(text, int, int);
 drop function if exists public.submit_score(uuid, text, int);
+drop function if exists public.submit_score(uuid, text, int, int, int, jsonb);
 
 -- Appelée au début de chaque partie : renvoie le ticket à présenter avec le score.
 create or replace function public.start_game()
@@ -50,16 +56,14 @@ begin
 end;
 $$;
 
--- Enregistre un score. Le ticket ne sert qu’une fois ; la durée est celle mesurée par le serveur
--- entre start_game et cet envoi. Refuse : au-delà de 0,3 point par milliseconde de partie (jouée
--- à la perfection, le jeu en rapporte ~0,25), une partie de moins de 3 s ou de plus de 30 min,
--- un nombre de pas incohérent avec la durée (le jeu tourne à 60 pas/s), ou un rejeu plus long que la partie.
--- Le rejeu (graine + sauts) est conservé : on peut rejouer la partie d’un gagnant pour vérifier son score
--- (window.MaArcadeVerify(seed, inputs) dans la console du site renvoie le score reproduit).
--- Ce n’est pas une protection absolue : avant de remettre le lot, faites rejouer le gagnant devant vous.
-create or replace function public.submit_score(
-  p_game uuid, p_name text, p_score int,
-  p_frames int default null, p_jumps int default null, p_replay jsonb default null)
+-- Enregistre un score. Appelée UNIQUEMENT par la fonction serveur enregistrer-score
+-- (supabase/functions/enregistrer-score), avec la clé secrète : le site et sa clé publique ne
+-- peuvent pas l’appeler. Le score reçu est celui que le serveur a calculé en rejouant la partie
+-- (graine + sauts) avec le moteur du jeu ; le navigateur ne choisit donc jamais son score.
+-- Vérifie encore : ticket valable une seule fois et de moins de 2 h, et partie pas plus longue
+-- que le temps réellement écoulé depuis le ticket (on ne peut pas « accélérer » une partie).
+create or replace function public.record_score(
+  p_game uuid, p_name text, p_score int, p_frames int, p_jumps int, p_replay jsonb)
 returns void
 language plpgsql
 security definer
@@ -69,28 +73,19 @@ declare
   v_name    text := left(regexp_replace(btrim(coalesce(p_name, '')), '\s+', ' ', 'g'), 16);
   v_started timestamptz;
   v_ms      int;
-  v_inputs  int;
 begin
   if now() >= timestamptz '2027-07-30 00:00:00+02' then raise exception 'concours terminé'; end if;
   if char_length(v_name) < 1 then raise exception 'prénom manquant'; end if;
+  if p_score is null or p_score < 1 or p_score > 1000000 then raise exception 'score invalide'; end if;
+  if p_frames is null or p_frames < 180 then raise exception 'partie trop courte'; end if;
   update public.games set used = true
     where id = p_game and not used
     returning started_at into v_started;
   if v_started is null then raise exception 'partie inconnue ou déjà enregistrée'; end if;
   v_ms := floor(extract(epoch from now() - v_started) * 1000);
-  if v_ms < 3000 or v_ms > 1800000 then raise exception 'durée invalide'; end if;
-  if p_score is null or p_score < 1 or p_score > v_ms * 3 / 10 then raise exception 'score invalide'; end if;
-  -- Cohérence du rejeu avec le temps réellement écoulé (le jeu avance de 60 pas par seconde).
-  if p_frames is not null then
-    if p_frames < 1 or p_frames > ceil(v_ms * 0.08) + 120 then raise exception 'durée de jeu incohérente'; end if;
-    if coalesce(p_jumps, 0) < 0 or coalesce(p_jumps, 0) > p_frames then raise exception 'sauts incohérents'; end if;
-    v_inputs := coalesce(jsonb_array_length(p_replay -> 'inputs'), 0);
-    if v_inputs > p_frames then raise exception 'rejeu incohérent'; end if;
-    -- anti-gonflage : on refuse un rejeu anormalement gros
-    if v_inputs > 6000 or (p_replay is not null and length(p_replay::text) > 80000) then
-      raise exception 'rejeu trop volumineux';
-    end if;
-  end if;
+  if v_ms > 7200000 then raise exception 'ticket expiré'; end if;
+  -- 60 pas par seconde : une partie de p_frames pas dure p_frames / 60 s (5 s de marge pour le réseau)
+  if v_ms + 5000 < p_frames * 1000 / 60 then raise exception 'partie plus longue que le temps écoulé'; end if;
   insert into public.scores (name, score, elapsed_ms, frames, jumps, replay)
     values (v_name, p_score, v_ms, p_frames, p_jumps, p_replay);
 end;
@@ -114,9 +109,12 @@ as $$
   limit 10;
 $$;
 
+-- Droits : la clé publique du site peut seulement lancer une partie et lire le top 10.
+-- Supabase donne d’office le droit d’exécuter les nouvelles fonctions à anon et authenticated :
+-- on le leur retire explicitement pour record_score.
 revoke all on function public.start_game() from public;
-revoke all on function public.submit_score(uuid, text, int, int, int, jsonb) from public;
 revoke all on function public.top_scores() from public;
+revoke all on function public.record_score(uuid, text, int, int, int, jsonb) from public, anon, authenticated;
 grant execute on function public.start_game() to anon;
-grant execute on function public.submit_score(uuid, text, int, int, int, jsonb) to anon;
 grant execute on function public.top_scores() to anon;
+grant execute on function public.record_score(uuid, text, int, int, int, jsonb) to service_role;

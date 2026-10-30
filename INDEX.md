@@ -1,7 +1,7 @@
 # Index du site — index.html
 
 Site en un seul fichier HTML (~1330 lignes) : `index.html`, plus le dossier `images/` et le
-mini-jeu `arcade.js`. Cet index sert à retrouver directement la bonne zone sans relire tout le
+mini-jeu (`jeu-moteur.js` + `arcade.js`). Cet index sert à retrouver directement la bonne zone sans relire tout le
 fichier (les numéros de ligne sont approximatifs : ils bougent dès qu'on édite ; chercher le nom
 de la classe ou de la variable).
 
@@ -112,7 +112,9 @@ Déployé automatiquement via GitHub Pages depuis la branche `main`, servi sur
 ## 8. Fichiers du dossier
 
 - `index.html` : le site
-- `arcade.js` : mini-jeu caché (voir le README)
+- `jeu-moteur.js` : règles et score du mini-jeu (partagé avec le serveur)
+- `arcade.js` : affichage du mini-jeu caché (voir le README)
+- `supabase/functions/enregistrer-score/index.ts` : fonction serveur qui calcule le score (générée par `outils/generer-fonction.mjs`)
 - `supabase.sql` : création du classement du mini-jeu
 - `images/`, `favicon.ico` : visuels et icônes
 - `CNAME` : nom de domaine

@@ -905,20 +905,27 @@
   document.getElementById('burger-btn').addEventListener('click', openMenu);
   document.getElementById('menu-close').addEventListener('click', closeMenu);
 
-  /* ---------- jeu caché (arcade.js, chargé seulement à la demande) ----------
+  /* ---------- jeu caché (jeu-moteur.js puis arcade.js, chargés seulement à la demande) ----------
      Ouvert par : les deux petits mariés en bas à droite de l'accueil, 5 appuis rapides sur le « & »
-     (logo ou menu mobile), le code Konami au clavier, ou l'adresse se terminant par #jeu. Ne marche pas tant que le mot de passe n'est pas saisi. */
+     (logo ou menu mobile), le code Konami au clavier, ou l'adresse se terminant par #jeu. Ne marche pas tant que le mot de passe n'est pas saisi.
+     ARCADE_V : à changer à chaque modification du jeu, pour que les navigateurs ne gardent pas l'ancienne version en cache. */
+  var ARCADE_V = '2026-10-30';
   var arcadeLoading = false;
+  function loadScript(src, onload, onerror) {
+    var s = document.createElement('script');
+    s.src = src + '?v=' + ARCADE_V;
+    s.onload = onload; s.onerror = onerror;
+    document.head.appendChild(s);
+  }
   function openArcade() {
     if (document.documentElement.classList.contains('locked')) return;
     if (window.MaArcade) { window.MaArcade.open(); return; }
     if (arcadeLoading) return;
     arcadeLoading = true;
-    var s = document.createElement('script');
-    s.src = 'arcade.js';
-    s.onload = function () { arcadeLoading = false; window.MaArcade.open(); };
-    s.onerror = function () { arcadeLoading = false; };
-    document.head.appendChild(s);
+    var failed = function () { arcadeLoading = false; };
+    loadScript('jeu-moteur.js', function () {
+      loadScript('arcade.js', function () { arcadeLoading = false; window.MaArcade.open(); }, failed);
+    }, failed);
   }
   document.addEventListener('click', function (e) {
     if (e.target.closest && e.target.closest('.game-link')) openArcade();

@@ -14,7 +14,7 @@ Site du mariage de Maÿlis & Alexis, le **30 juillet 2027** dans l'Yonne.
 
 Chaque page a son adresse (`#accueil`, `#jourj`, `#hebergements`, `#liste`).
 
-Le site tient dans un seul fichier, sans outil de build ni dépendance : HTML, CSS et JavaScript. Seul le mini-jeu caché (voir plus bas) vit dans son propre fichier, `arcade.js`, chargé uniquement quand on le déclenche.
+Le site tient dans un seul fichier, sans outil de build ni dépendance : HTML, CSS et JavaScript. Seul le mini-jeu caché (voir plus bas) vit à part, dans `jeu-moteur.js` (règles et score) et `arcade.js` (affichage), chargés uniquement quand on le déclenche.
 
 ## Structure
 
@@ -24,8 +24,12 @@ Le site tient dans un seul fichier, sans outil de build ni dépendance : HTML, C
 | `images/`         | Photos (hero desktop et mobile, liste de mariage), image d'aperçu de lien `og.jpg`, icônes |
 | `favicon.ico`     | Icône de l'onglet (à la racine, les navigateurs la cherchent là) |
 | `CNAME`           | Nom de domaine pour GitHub Pages                                 |
-| `arcade.js`       | Mini-jeu caché « La course vers l’autel » (voir plus bas)        |
+| `jeu-moteur.js`   | Mini-jeu : règles, physique et calcul du score (partagé avec le serveur) |
+| `arcade.js`       | Mini-jeu caché « La course vers l’autel » : affichage, son, classement |
 | `supabase.sql`    | Script de création du classement du mini-jeu                     |
+| `supabase/functions/enregistrer-score/index.ts` | Fonction serveur qui rejoue chaque partie et calcule le score (fichier généré, voir plus bas) |
+| `outils/`         | Partie serveur de cette fonction et script qui la génère          |
+| `SECURITE.md`     | Bilan de sécurité, et comment surveiller les scores              |
 | `INDEX.md`        | Plan détaillé de `index.html` pour retrouver vite ce qu'on veut modifier |
 
 ## Le voir en local
@@ -82,7 +86,7 @@ Un jeu d'arcade dans le style 8 bits : les mariés courent vers le domaine, on s
 | 15 000   | Le cocktail au jardin  | haies, mange-debout, pyramides de coupes, ballons                |
 | 20 000   | La discothèque         | enceintes, danseurs, platines, boules à facettes (vitesse max)   |
 
-Les paliers et la difficulté de chaque biome se règlent en tête de `arcade.js` (`BIOME_AT`, `BIOME_VMAX`, `BIOME_ACC`, `BIOME_GAP`, `BIOME_SPREAD`). Ne pas dépasser 700 px/s ni descendre sous 0,48 de marge : le serveur refuse les scores au-delà de 0,3 point par milliseconde de partie (voir `supabase.sql`). Avec les points actuels (`DIST_PTS`, `RING_PTS`, `BOTTLE_PTS`, `BIOME_BONUS`), le maximum atteint est d'environ 0,25 en discothèque. Si on augmente encore les points, relever aussi cette limite dans `supabase.sql` (fonction `submit_score`, `v_ms * 3 / 10`) **et rejouer le script dans Supabase** : sans cela, les scores trop élevés sont refusés à l'envoi.
+Les paliers, la difficulté de chaque biome et les points se règlent en tête de `jeu-moteur.js` (`BIOME_AT`, `BIOME_VMAX`, `BIOME_ACC`, `BIOME_GAP`, `BIOME_SPREAD`, `DIST_PTS`, `RING_PTS`, `BOTTLE_PTS`, `BIOME_BONUS`). **Après toute modification de `jeu-moteur.js`** : lancer `node outils/generer-fonction.mjs`, recoller `supabase/functions/enregistrer-score/index.ts` dans Supabase (voir « Classement partagé ») et changer `ARCADE_V` dans `index.html`. Sinon le serveur rejoue les parties avec les anciennes règles et refuse ou fausse les scores.
 
 **Comment l'ouvrir** (il faut avoir saisi le mot de passe) :
 
@@ -91,22 +95,25 @@ Les paliers et la difficulté de chaque biome se règlent en tête de `arcade.js
 - le code Konami au clavier (↑ ↑ ↓ ↓ ← → ← → B A) ;
 - ou l'adresse `…/#jeu`, pratique à envoyer dans un message.
 
-**Classement partagé** (déjà branché sur le projet Supabase `pfgkwzgzbtowgqslxlux` ; sans URL ni clé dans `arcade.js`, le jeu fonctionne mais chaque appareil ne voit que ses propres scores). Pour le refaire dans un autre projet :
+**Classement partagé** (déjà branché sur le projet Supabase `pfgkwzgzbtowgqslxlux` ; sans URL ni clé dans `arcade.js`, le jeu fonctionne mais chaque appareil ne voit que ses propres scores). Le navigateur n'envoie **jamais de score** : seulement son ticket de partie, la graine de la partie et les pas où le joueur a sauté. La fonction serveur `enregistrer-score` rejoue la partie avec le même moteur (`jeu-moteur.js`) et enregistre le score qu'elle obtient. Pour tout installer (ou mettre à jour après une modification du jeu) :
 
-1. Créer un projet gratuit sur [supabase.com](https://supabase.com).
-2. Dans *SQL Editor*, coller le contenu de `supabase.sql` et l'exécuter.
-3. Dans *Project Settings → API*, copier l'URL du projet et la clé « anon / publishable ».
-4. Les coller dans `SUPABASE_URL` et `SUPABASE_KEY`, en tête de `arcade.js`. Cette clé est publique par conception : les tables ne sont accessibles que par les fonctions du script SQL.
+1. Créer un projet gratuit sur [supabase.com](https://supabase.com) (déjà fait).
+2. **Fonction serveur** : *Edge Functions → Deploy a new function → Via Editor*, la nommer exactement `enregistrer-score`, remplacer tout le code par le contenu de `supabase/functions/enregistrer-score/index.ts`, puis *Deploy*. Dans les réglages de la fonction, **désactiver « Verify JWT »** (la clé publique du site n'est pas un jeton JWT ; la fonction fait ses propres contrôles). Pour une mise à jour, ouvrir la fonction, recoller le code et redéployer.
+3. Dans *SQL Editor*, coller le contenu de `supabase.sql` et l'exécuter (rejouable sans risque).
+4. Dans *Project Settings → API*, copier l'URL du projet et la clé « anon / publishable », et les coller dans `SUPABASE_URL` et `SUPABASE_KEY`, en tête de `arcade.js`. Cette clé est publique par conception : avec elle, on peut seulement lancer une partie et lire le top 10.
 
-**Fin du concours :** `FIN` en tête de `arcade.js` (et la date dans `supabase.sql`, fonction `submit_score`) fixe la date après laquelle les scores ne sont plus enregistrés. Par défaut, le 30 juillet 2027 à minuit.
+La fonction utilise la clé secrète du projet que Supabase lui fournit d'office (`SUPABASE_SERVICE_ROLE_KEY`). Si l'envoi échoue avec « serveur mal configuré », ajouter dans *Edge Functions → Secrets* un secret `CLE_SECRETE` contenant la clé secrète (`sb_secret_…`) du projet.
 
-**Gérer les scores :** dans Supabase, *Table Editor → scores* permet de supprimer une ligne (pseudo déplacé, score douteux). Plusieurs garde-fous contre la triche :
+**Fin du concours :** `FIN` en tête de `arcade.js` (et la date dans `supabase.sql`, fonctions `start_game` et `record_score`) fixe la date après laquelle les scores ne sont plus enregistrés. Par défaut, le 30 juillet 2027 à minuit.
 
-- Chaque partie demande un **ticket** au serveur (`start_game`), qui note lui-même l'heure de départ ; le score n'est accepté qu'**une seule fois par ticket** et seulement s'il est vraisemblable pour le temps réellement écoulé (colonne `elapsed_ms`), à 0,3 point/ms au plus.
-- Le jeu est **déterministe** (pas de temps fixe, 60 pas/s, tirage aléatoire à graine). Chaque envoi joint un **rejeu** (graine + frames de saut), conservé dans la colonne `replay`. On peut donc **reproduire la partie d'un gagnant** et retrouver son score : dans la console du site, `MaArcadeVerify(seed, inputs)` (valeurs de la colonne `replay`) renvoie `{ score, frames }`. Un score envoyé « à la main » sans rejeu cohérent se repère ainsi.
-- Le serveur refuse aussi un nombre de pas incohérent avec la durée, un nombre de sauts supérieur au nombre de pas, un rejeu plus long que la partie, et plus de 600 parties lancées en 10 minutes.
+**Gérer les scores :** dans Supabase, *Table Editor → scores* permet de supprimer une ligne (pseudo déplacé, score douteux). Protections contre la triche :
 
-**Limite qui demeure :** un tricheur patient peut garder un ticket ouvert et annoncer un score proportionnel au temps écoulé, ou modifier le jeu dans son propre navigateur. Aucune protection côté navigateur n'est absolue. Avant de remettre le lot, **faire rejouer le gagnant devant soi** (et, au besoin, vérifier son rejeu avec `MaArcadeVerify`).
+- Le **score est calculé par le serveur**, en rejouant la partie : impossible d'annoncer un chiffre.
+- Chaque partie demande un **ticket** (`start_game`) qui ne sert qu'**une fois** ; le serveur note l'heure de départ et refuse une partie plus longue que le temps réellement écoulé (on ne peut pas « accélérer » une partie).
+- Le jeu est **déterministe** (60 pas/s, tirage à graine, calculs identiques dans tous les navigateurs) : chaque score enregistré garde son rejeu (colonne `replay`), qu'on peut rejouer dans la console du site avec `MaArcadeVerify(seed, inputs)`.
+- La clé publique n'a **aucun droit direct** sur les tables : ni lire, ni écrire, ni supprimer, ni vider.
+
+**Limite qui demeure :** quelqu'un qui sait programmer peut écrire un robot qui joue à sa place (le moteur est lisible dans le code du site) et attendre en temps réel la durée de sa partie. C'est beaucoup plus difficile que de modifier un chiffre, et ça se voit (score très élevé, partie très longue, voir `SECURITE.md`), mais avant de remettre le lot, **faire rejouer le gagnant devant soi**.
 
 ## Aperçu quand on partage le lien
 
