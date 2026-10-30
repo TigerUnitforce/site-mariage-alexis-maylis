@@ -106,14 +106,23 @@ La fonction utilise la clé secrète du projet que Supabase lui fournit d'office
 
 **Fin du concours :** `FIN` en tête de `arcade.js` (et la date dans `supabase.sql`, fonctions `start_game` et `record_score`) fixe la date après laquelle les scores ne sont plus enregistrés. Par défaut, le 30 juillet 2027 à minuit.
 
-**Gérer les scores :** dans Supabase, *Table Editor → scores* permet de supprimer une ligne (pseudo déplacé, score douteux). Protections contre la triche :
+**Gérer les scores** (Supabase → *Table Editor*) :
 
-- Le **score est calculé par le serveur**, en rejouant la partie : impossible d'annoncer un chiffre.
-- Chaque partie demande un **ticket** (`start_game`) qui ne sert qu'**une fois** ; le serveur note l'heure de départ et refuse une partie plus longue que le temps réellement écoulé (on ne peut pas « accélérer » une partie).
-- Le jeu est **déterministe** (60 pas/s, tirage à graine, calculs identiques dans tous les navigateurs) : chaque score enregistré garde son rejeu (colonne `replay`), qu'on peut rejouer dans la console du site avec `MaArcadeVerify(seed, inputs)`.
+- **Valider un score en attente** : table `scores`, filtrer `en_attente` = `true`. Ce sont les scores qui entreraient dans le top 3 et les parties à vérifier (colonne `motif`) ; ils n'apparaissent pas au classement tant qu'on ne les a pas validés. Pour valider : mettre `en_attente` à `false`. Pour refuser : supprimer la ligne. Le nombre de places surveillées se règle avec `PODIUM` dans `supabase.sql` (fonction `record_score` ; 0 = pas de validation).
+- **Revoir la partie d'un joueur** : copier sa colonne `replay`, ouvrir le site, puis la console du navigateur (F12) et taper `MaArcade.revoir(` + la valeur copiée + `)`. La partie se rejoue à l'écran, à vitesse normale, avec exactement les mêmes sauts. Un robot se repère à l'œil : sauts millimétrés, jamais un appui de trop.
+- **Libérer un prénom** (invité qui a changé de téléphone) : table `players`, supprimer la ligne du prénom (colonne `name_key`, prénom en minuscules sans accents ni espaces).
+- **Supprimer un score** : supprimer sa ligne dans `scores`.
+
+Protections contre la triche (détail dans `SECURITE.md`) :
+
+- Le **score est calculé par le serveur** en rejouant la partie : impossible d'annoncer un chiffre.
+- La **graine de la partie est tirée par le serveur au clic sur « Jouer »**, qui note l'heure de début et celle de la chute (`end_game`). La durée réelle doit correspondre à la durée de la partie : une partie préparée à l'avance, accélérée, jouée au ralenti ou mise en pause est refusée. Un invité qui quitte l'appli en pleine partie voit son score refusé.
+- Chaque ticket ne sert qu'**une fois** ; au plus 60 parties par connexion internet en 10 minutes.
+- Un **prénom** appartient au premier appareil qui l'a utilisé (clé tirée au hasard et gardée dans le navigateur).
+- Les parties de plus de 4 minutes ou de 25 000 points sont **marquées à vérifier** ; elles et les scores du podium attendent ta validation.
 - La clé publique n'a **aucun droit direct** sur les tables : ni lire, ni écrire, ni supprimer, ni vider.
 
-**Limite qui demeure :** quelqu'un qui sait programmer peut écrire un robot qui joue à sa place (le moteur est lisible dans le code du site) et attendre en temps réel la durée de sa partie. C'est beaucoup plus difficile que de modifier un chiffre, et ça se voit (score très élevé, partie très longue, voir `SECURITE.md`), mais avant de remettre le lot, **faire rejouer le gagnant devant soi**.
+**Limite qui demeure :** un programme qui joue dans la page en appuyant au bon moment ne se distingue pas à coup sûr d'un excellent joueur. Il doit jouer en temps réel, et ne peut pas monter sur le podium sans ta validation ; avant de remettre le lot, **faire rejouer le gagnant devant soi**.
 
 ## Aperçu quand on partage le lien
 

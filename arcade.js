@@ -29,6 +29,7 @@
   var PX = M.PX, PW = M.PW, PH = M.PH;   // position et taille du couple
 
   var LS_NAME = 'ma-arcade-nom', LS_BEST = 'ma-arcade-record', LS_LOCAL = 'ma-arcade-scores', LS_SOUND = 'ma-arcade-son';
+  var LS_DEVICE = 'ma-arcade-appareil';
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 
@@ -818,30 +819,63 @@
   function newState(seed) {
     var s = M.newGame(seed || 0);
     s.pops = []; s.shake = 0; s.banner = 0; s.shown = -1; s.submitted = false;
-    s.game = null; s.inputs = []; s.wantJump = false;
+    s.game = null; s.ended = null; s.inputs = []; s.wantJump = false; s.hiddenMs = 0; s.hiddenAt = 0;
     return s;
+  }
+
+  /* clé tirée au hasard une fois par appareil : le serveur réserve un prénom au premier appareil qui l’utilise */
+  var device = null;
+  function deviceKey() {
+    if (device) return device;
+    device = lsGet(LS_DEVICE);
+    if (!/^[0-9a-f]{32}$/.test(device || '')) {
+      var a = new Uint8Array(16);
+      crypto.getRandomValues(a);
+      device = Array.prototype.map.call(a, function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+      lsSet(LS_DEVICE, device);
+    }
+    return device;
   }
 
   function score() { return M.score(st); }
 
+  /* Le serveur donne le ticket et la graine de la partie au moment du clic, et note l’heure : on ne peut
+     ni préparer une partie à l’avance, ni la jouer au ralenti (voir supabase.sql). Sans réponse du
+     serveur, on joue quand même, mais le score ne pourra pas être enregistré. */
+  var starting = false;
   function start() {
-    st = newState(Math.floor(Math.random() * 4294967296));
+    if (starting || mode === 'play') return;
+    var local = function () { return Math.floor(Math.random() * 4294967296); };
+    if (!online || Date.now() >= FIN) { begin(local(), null); return; }
+    starting = true; el.play.disabled = true;
+    var settled = false;                            // propre à ce clic : la réponse ou le délai, le premier des deux
+    var go = function (seed, ticket) {
+      if (settled) return;
+      settled = true; starting = false; el.play.disabled = false;
+      if (mode === 'closed') return;                // jeu fermé pendant l’attente
+      begin(seed, ticket);
+    };
+    api('start_game').then(function (r) {
+      if (!r.ok) throw new Error(r.status);
+      return r.json();
+    }).then(function (t) {
+      if (!t || typeof t.id !== 'string' || typeof t.seed !== 'number') throw new Error('ticket');
+      go(t.seed, t.id);
+    }).catch(function () { go(local(), null); });
+    setTimeout(function () { go(local(), null); }, 5000);
+  }
+
+  function begin(seed, ticket) {
+    st = newState(seed);
+    st.game = ticket;
     acc = 0;
-    // ticket de partie : le serveur note l’heure de départ et s’en sert pour juger le score envoyé
-    if (online && Date.now() < FIN) {
-      st.game = api('start_game').then(function (r) {
-        if (!r.ok) throw new Error(r.status);
-        return r.json();
-      });
-      st.game.catch(function () {});
-    }
     mode = 'play';
     el.panel.hidden = true;
     root.focus();
     if (window.maTrack) window.maTrack('jeu/partie', true);
   }
 
-  function wantJump() { if (st && mode === 'play') st.wantJump = true; }   // pris en compte au pas suivant
+  function wantJump() { if (st && mode === 'play' && !st.replay) st.wantJump = true; }   // pris en compte au pas suivant
 
   function onKey(e) {
     if (mode === 'closed') return;
@@ -864,7 +898,7 @@
 
   /* un pas de partie : le moteur avance, puis on joue les sons et les effets de ce qui s’est passé */
   function tick() {
-    var jump = st.wantJump;
+    var jump = st.replay ? st.replay[st.frame] === 1 : st.wantJump;
     st.wantJump = false;
     if (jump && st.inputs.length < 20000) st.inputs.push(st.frame);
     M.step(st, jump);
@@ -894,7 +928,21 @@
     mode = 'dying'; deadAt = performance.now(); st.shake = 0.4;
     el.score.textContent = pad(score());
     sfx.hit();
+    // le serveur note l’heure de la chute : la durée réelle doit correspondre à celle de la partie
+    if (st.game) {
+      st.ended = fetch(SUPABASE_URL + '/rest/v1/rpc/end_game', {
+        method: 'POST', headers: headers(), body: JSON.stringify({ p_game: st.game }), keepalive: true
+      }).then(function (r) { if (!r.ok) throw new Error(r.status); });
+      st.ended.catch(function () {});
+    }
   }
+
+  /* jeu en arrière-plan (appel, autre appli) : la partie se fige, et le serveur refusera son score */
+  document.addEventListener('visibilitychange', function () {
+    if (!st) return;
+    if (document.hidden) { if (mode === 'play') st.hiddenAt = performance.now(); }
+    else if (st.hiddenAt) { st.hiddenMs += performance.now() - st.hiddenAt; st.hiddenAt = 0; }
+  });
 
   /* ---------- dessin ---------- */
   function render(now) {
@@ -1048,9 +1096,11 @@
     var sc = score();
     lsSet(LS_NAME, name);
     el.send.disabled = true; el.msg.textContent = 'Envoi…';
-    var done = function () {
+    var done = function (pending) {
       st.submitted = true; el.form.hidden = true; el.msg.textContent = '';
-      el.lead.textContent = 'Score enregistré, merci ' + name + ' !';
+      el.lead.textContent = pending
+        ? 'Score enregistré, merci ' + name + ' ! Il apparaîtra au classement une fois validé par les mariés.'
+        : 'Score enregistré, merci ' + name + ' !';
       refreshBoard(name);
     };
     var game = st;
@@ -1060,25 +1110,32 @@
       done(); return;
     }
     if (!game.game) { el.send.disabled = false; el.msg.textContent = 'Envoi impossible pour cette partie.'; return; }
-    // on n’envoie pas de score : seulement la graine et les pas où l’on a sauté. Le serveur rejoue
-    // la partie avec le même moteur (jeu-moteur.js) et calcule lui-même le score.
-    game.game.then(function (ticket) {
+    // on n’envoie pas de score : seulement le ticket, la graine et les pas où l’on a sauté. Le serveur
+    // rejoue la partie avec le même moteur (jeu-moteur.js) et calcule lui-même le score.
+    (game.ended || Promise.resolve()).then(function () {
       return fetch(SUPABASE_URL + '/functions/v1/' + SCORE_FN, {
         method: 'POST',
         headers: headers(),
-        body: JSON.stringify({ game: ticket, name: name, seed: game.seed, inputs: game.inputs })
+        body: JSON.stringify({ game: game.game, name: name, device: deviceKey(), seed: game.seed, inputs: game.inputs })
       });
     }).then(function (r) {
-      if (!r.ok) throw new Error(r.status);
-      return r.json();
-    }).then(function (res) {
-      // le serveur renvoie le score qu’il a calculé ; sans lui, rien n’a été enregistré
-      if (!res || typeof res.score !== 'number') throw new Error('réponse inattendue');
-      done();
-    }).catch(function () {
+      return r.json().catch(function () { return {}; }).then(function (res) {
+        // le serveur renvoie le score qu’il a calculé ; sans lui, rien n’a été enregistré
+        if (!r.ok || !res || typeof res.score !== 'number') throw new Error((res && res.error) || String(r.status));
+        done(!!res.en_attente);
+      });
+    }).catch(function (e) {
       el.send.disabled = false;
-      el.msg.textContent = 'Envoi impossible pour le moment. Réessayez dans un instant.';
+      el.msg.textContent = sendError(String(e && e.message));
     });
+  }
+
+  function sendError(m) {
+    if (/prénom déjà pris/.test(m)) return 'Ce prénom est déjà utilisé sur un autre appareil : ajoutez une initiale (ex. « Paul B. »).';
+    if (/ralentie ou interrompue/.test(m)) return 'Partie interrompue ou ralentie : ce score ne peut pas être enregistré.';
+    if (/déjà enregistrée/.test(m)) return 'Ce score est déjà enregistré.';
+    if (/concours terminé/.test(m)) return 'Le concours est terminé.';
+    return 'Envoi impossible pour le moment. Réessayez dans un instant.';
   }
 
   /* ---------- panneaux ---------- */
@@ -1098,13 +1155,18 @@
 
   function showOver() {
     mode = 'over';
-    var sc = score(), rec = sc > best;
+    var sc = score(), rec = sc > best && !st.replay;   // une rediffusion ne compte pas comme record
     if (rec) { best = sc; lsSet(LS_BEST, String(best)); el.best.textContent = pad(best); }
     el.kicker.textContent = rec && sc > 0 ? 'Nouveau record' : 'Partie terminée';
     el.head.textContent = 'Perdu !';
     el.big.hidden = false; el.big.textContent = sc;
-    var canSend = Date.now() < FIN && sc > 0;
-    el.lead.textContent = canSend ? 'Inscrivez votre prénom pour entrer au classement.' : '';
+    var canSend = Date.now() < FIN && sc > 0 && !st.replay;
+    var why = '';
+    if (canSend && online && !st.game) why = 'Partie jouée sans liaison avec le serveur : ce score ne peut pas être enregistré.';
+    else if (canSend && online && st.hiddenMs + (st.hiddenAt ? performance.now() - st.hiddenAt : 0) > 8000) why ='Partie interrompue (le jeu est passé en arrière-plan) : ce score ne peut pas être enregistré.';
+    if (why) canSend = false;
+    el.lead.textContent = canSend ? 'Inscrivez votre prénom pour entrer au classement.' : why;
+    if (st.replay) { el.kicker.textContent = 'Rediffusion'; el.head.textContent = 'Fin de la partie'; el.lead.textContent = st.jumps + ' sauts · ' + Math.round(st.frame / 60) + ' s de jeu'; }
     el.form.hidden = !canSend;
     el.send.disabled = false; el.msg.textContent = '';
     el.name.value = cleanName(lsGet(LS_NAME));
@@ -1141,5 +1203,19 @@
     if (lastFocus && lastFocus.focus) { try { lastFocus.focus(); } catch (e) {} }
   }
 
-  window.MaArcade = { open: open, close: close };
+  /* Revoir à l’écran la partie d’un joueur, à vitesse normale, à partir de sa colonne replay dans Supabase :
+     dans la console du site, MaArcade.revoir({"seed": …, "inputs": […]}). Un robot se repère à l’œil
+     (sauts millimétrés, jamais d’appui de trop). Rien n’est envoyé au serveur. */
+  function revoir(replay) {
+    if (typeof replay === 'string') replay = JSON.parse(replay);
+    if (!replay || typeof replay.seed !== 'number' || !Array.isArray(replay.inputs)) throw new Error('rejeu attendu : {"seed": …, "inputs": […]}');
+    open();
+    starting = false; el.play.disabled = false;
+    begin(replay.seed, null);
+    st.replay = {};
+    replay.inputs.forEach(function (f) { st.replay[f] = 1; });
+    return 'Rediffusion lancée : score attendu ' + M.replay(replay.seed, replay.inputs).score;
+  }
+
+  window.MaArcade = { open: open, close: close, revoir: revoir };
 })();

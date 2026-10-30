@@ -271,9 +271,10 @@ var MaMoteur = (function () {
 if (typeof module === 'object' && module.exports) module.exports = MaMoteur;
 
 /* ---------- partie serveur : rejoue la partie reçue et enregistre le score qu’elle donne ----------
-   Le navigateur n’envoie jamais de score : seulement son ticket de partie, la graine et les pas où le
-   joueur a sauté. Le score est recalculé ici avec le moteur ci-dessus, puis enregistré par record_score
-   (fonction SQL que seule la clé secrète du serveur peut appeler, voir supabase.sql). */
+   Le navigateur n’envoie jamais de score : seulement son ticket de partie, la graine que le serveur lui
+   a donnée, les pas où le joueur a sauté et la clé (tirée au hasard) de son appareil. Le score est
+   recalculé ici avec le moteur ci-dessus, puis enregistré par record_score, fonction SQL que seule la clé
+   secrète du serveur peut appeler et qui vérifie le reste (voir supabase.sql). */
 
 const ORIGINS = ['https://maylisetalexis.com', 'https://www.maylisetalexis.com', 'http://localhost:8000'];
 const MAX_BODY = 300000;       // octets
@@ -310,11 +311,12 @@ export async function handle(req, env, fetchImpl) {
   }
   if (!body || typeof body !== 'object') return reply(400, { error: 'requête illisible' }, origin);
 
-  const game = body.game, name = body.name, seed = body.seed, inputs = body.inputs;
+  const game = body.game, name = body.name, device = body.device, seed = body.seed, inputs = body.inputs;
   if (typeof game !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(game)) {
     return reply(400, { error: 'ticket invalide' }, origin);
   }
   if (typeof name !== 'string' || !name.trim() || name.length > 64) return reply(400, { error: 'prénom invalide' }, origin);
+  if (typeof device !== 'string' || !/^[0-9a-f]{32}$/.test(device)) return reply(400, { error: 'appareil inconnu' }, origin);
   if (!Number.isInteger(seed) || seed < 0 || seed > 4294967295) return reply(400, { error: 'graine invalide' }, origin);
   if (!Array.isArray(inputs) || inputs.length > MAX_INPUTS) return reply(400, { error: 'sauts invalides' }, origin);
   for (let i = 0; i < inputs.length; i++) {
@@ -336,15 +338,17 @@ export async function handle(req, env, fetchImpl) {
   const res = await fetchImpl(env.SUPABASE_URL + '/rest/v1/rpc/record_score', {
     method: 'POST',
     headers: h,
-    body: JSON.stringify({ p_game: game, p_name: name, p_score: r.score, p_frames: r.frames,
-                           p_jumps: r.jumps, p_replay: { seed: seed, inputs: inputs } })
+    body: JSON.stringify({ p_game: game, p_name: name, p_device: device, p_seed: seed, p_score: r.score,
+                           p_frames: r.frames, p_jumps: r.jumps, p_replay: { seed: seed, inputs: inputs } })
   });
   if (!res.ok) {
     let msg = 'enregistrement refusé';
     try { const j = await res.json(); if (j && typeof j.message === 'string') msg = j.message; } catch (e) {}
     return reply(409, { error: msg }, origin);
   }
-  return reply(200, { score: r.score }, origin);
+  let pending = false;   // score sur le podium ou à vérifier : caché jusqu’à validation par les mariés
+  try { const j = await res.json(); pending = !!(j && j.en_attente); } catch (e) {}
+  return reply(200, { score: r.score, en_attente: pending }, origin);
 }
 
 if (typeof Deno !== 'undefined') {
