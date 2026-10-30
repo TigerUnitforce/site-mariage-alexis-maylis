@@ -933,11 +933,11 @@
   var secretTaps = [];
   document.addEventListener('click', function (e) {
     if (!e.target.closest || !e.target.closest('[data-secret]')) return;
-    e.preventDefault(); e.stopPropagation();
     var now = Date.now();
     secretTaps = secretTaps.filter(function (t) { return now - t < 2500; });
     secretTaps.push(now);
-    if (secretTaps.length < 5) return;
+    if (secretTaps.length < 5) return;      // les premiers appuis gardent leur effet normal (le logo ramène à l'accueil)
+    e.preventDefault(); e.stopPropagation();
     secretTaps = [];
     closeMenu();
     openArcade();
