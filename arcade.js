@@ -11,6 +11,7 @@
   /* ---------- réglages ---------- */
   var SUPABASE_URL = 'https://pfgkwzgzbtowgqslxlux.supabase.co';   // ex. https://abcdefgh.supabase.co
   var SUPABASE_KEY = 'sb_publishable_9VsDjZru7a_d9Bg4aW4CtQ_EtdOGusc';   // clé « anon / publishable » (publique par conception)
+  var SCORE_FN = 'clever-action';   // nom de la fonction serveur dans Supabase (Edge Functions) qui contient supabase/functions/enregistrer-score/index.ts
   var FIN = new Date('2027-07-30T00:00:00+02:00').getTime();   // après : plus d’enregistrement de score
 
   /* ---------- constantes d’affichage (coordonnées logiques 480 × 270) ; règles et points : jeu-moteur.js ---------- */
@@ -1062,13 +1063,17 @@
     // on n’envoie pas de score : seulement la graine et les pas où l’on a sauté. Le serveur rejoue
     // la partie avec le même moteur (jeu-moteur.js) et calcule lui-même le score.
     game.game.then(function (ticket) {
-      return fetch(SUPABASE_URL + '/functions/v1/enregistrer-score', {
+      return fetch(SUPABASE_URL + '/functions/v1/' + SCORE_FN, {
         method: 'POST',
         headers: headers(),
         body: JSON.stringify({ game: ticket, name: name, seed: game.seed, inputs: game.inputs })
       });
     }).then(function (r) {
       if (!r.ok) throw new Error(r.status);
+      return r.json();
+    }).then(function (res) {
+      // le serveur renvoie le score qu’il a calculé ; sans lui, rien n’a été enregistré
+      if (!res || typeof res.score !== 'number') throw new Error('réponse inattendue');
       done();
     }).catch(function () {
       el.send.disabled = false;
