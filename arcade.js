@@ -1026,10 +1026,6 @@
     render(now);
   }
 
-  /* Pour vérifier à la main le score d’un gagnant : MaArcadeVerify(seed, inputs) dans la console,
-     avec les valeurs de sa colonne replay. Le serveur fait exactement le même calcul. */
-  window.MaArcadeVerify = function (seed, inputs) { return M.replay(seed >>> 0, inputs || []); };
-
   /* ---------- classement ---------- */
   function cleanName(s) { return String(s || '').replace(/[\u0000-\u001f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 16); }
 
@@ -1096,11 +1092,9 @@
     var sc = score();
     lsSet(LS_NAME, name);
     el.send.disabled = true; el.msg.textContent = 'Envoi…';
-    var done = function (pending) {
+    var done = function () {
       st.submitted = true; el.form.hidden = true; el.msg.textContent = '';
-      el.lead.textContent = pending
-        ? 'Score enregistré, merci ' + name + ' ! Il apparaîtra au classement une fois validé par les mariés.'
-        : 'Score enregistré, merci ' + name + ' !';
+      el.lead.textContent = 'Score enregistré, merci ' + name + ' !';
       refreshBoard(name);
     };
     var game = st;
@@ -1122,7 +1116,7 @@
       return r.json().catch(function () { return {}; }).then(function (res) {
         // le serveur renvoie le score qu’il a calculé ; sans lui, rien n’a été enregistré
         if (!r.ok || !res || typeof res.score !== 'number') throw new Error((res && res.error) || String(r.status));
-        done(!!res.en_attente);
+        done();
       });
     }).catch(function (e) {
       el.send.disabled = false;
@@ -1203,19 +1197,5 @@
     if (lastFocus && lastFocus.focus) { try { lastFocus.focus(); } catch (e) {} }
   }
 
-  /* Revoir à l’écran la partie d’un joueur, à vitesse normale, à partir de sa colonne replay dans Supabase :
-     dans la console du site, MaArcade.revoir({"seed": …, "inputs": […]}). Un robot se repère à l’œil
-     (sauts millimétrés, jamais d’appui de trop). Rien n’est envoyé au serveur. */
-  function revoir(replay) {
-    if (typeof replay === 'string') replay = JSON.parse(replay);
-    if (!replay || typeof replay.seed !== 'number' || !Array.isArray(replay.inputs)) throw new Error('rejeu attendu : {"seed": …, "inputs": […]}');
-    open();
-    starting = false; el.play.disabled = false;
-    begin(replay.seed, null);
-    st.replay = {};
-    replay.inputs.forEach(function (f) { st.replay[f] = 1; });
-    return 'Rediffusion lancée : score attendu ' + M.replay(replay.seed, replay.inputs).score;
-  }
-
-  window.MaArcade = { open: open, close: close, revoir: revoir };
+  window.MaArcade = { open: open, close: close };
 })();

@@ -108,8 +108,7 @@ La fonction utilise la clé secrète du projet que Supabase lui fournit d'office
 
 **Gérer les scores** (Supabase → *Table Editor*) :
 
-- **Valider un score en attente** : table `scores`, filtrer `en_attente` = `true`. Ce sont les scores qui entreraient dans le top 3 et les parties à vérifier (colonne `motif`) ; ils n'apparaissent pas au classement tant qu'on ne les a pas validés. Pour valider : mettre `en_attente` à `false`. Pour refuser : supprimer la ligne. Le nombre de places surveillées se règle avec `PODIUM` dans `supabase.sql` (fonction `record_score` ; 0 = pas de validation).
-- **Revoir la partie d'un joueur** : copier sa colonne `replay`, ouvrir le site, puis la console du navigateur (F12) et taper `MaArcade.revoir(` + la valeur copiée + `)`. La partie se rejoue à l'écran, à vitesse normale, avec exactement les mêmes sauts. Un robot se repère à l'œil : sauts millimétrés, jamais un appui de trop.
+- **Plus de validation** : tous les scores s'affichent tout de suite au classement. Les parties suspectes (plus de 4 minutes ou 25 000 points) sont seulement marquées dans la table `scores` (colonnes `a_verifier` et `motif`) pour les retrouver. Pour masquer un score à la main, mettre sa colonne `en_attente` à `true` (ou supprimer la ligne).
 - **Libérer un prénom** (invité qui a changé de téléphone) : table `players`, supprimer la ligne du prénom (colonne `name_key`, prénom en minuscules sans accents ni espaces).
 - **Supprimer un score** : supprimer sa ligne dans `scores`.
 
@@ -119,10 +118,10 @@ Protections contre la triche (détail dans `SECURITE.md`) :
 - La **graine de la partie est tirée par le serveur au clic sur « Jouer »**, qui note l'heure de début et celle de la chute (`end_game`). La durée réelle doit correspondre à la durée de la partie : une partie préparée à l'avance, accélérée, jouée au ralenti ou mise en pause est refusée. Un invité qui quitte l'appli en pleine partie voit son score refusé.
 - Chaque ticket ne sert qu'**une fois** ; au plus 60 parties par connexion internet en 10 minutes.
 - Un **prénom** appartient au premier appareil qui l'a utilisé (clé tirée au hasard et gardée dans le navigateur).
-- Les parties de plus de 4 minutes ou de 25 000 points sont **marquées à vérifier** ; elles et les scores du podium attendent ta validation.
+- Les parties de plus de 4 minutes ou de 25 000 points sont **marquées à vérifier** (colonnes `a_verifier` et `motif`), sans être cachées.
 - La clé publique n'a **aucun droit direct** sur les tables : ni lire, ni écrire, ni supprimer, ni vider.
 
-**Limite qui demeure :** un programme qui joue dans la page en appuyant au bon moment ne se distingue pas à coup sûr d'un excellent joueur. Il doit jouer en temps réel, et ne peut pas monter sur le podium sans ta validation ; avant de remettre le lot, **faire rejouer le gagnant devant soi**.
+**Limite qui demeure :** un programme qui joue dans la page en appuyant au bon moment ne se distingue pas à coup sûr d'un excellent joueur. Il doit jouer en temps réel ; avant de remettre le lot, **faire rejouer le gagnant devant soi**.
 
 ## Aperçu quand on partage le lien
 

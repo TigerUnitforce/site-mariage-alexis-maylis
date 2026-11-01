@@ -21,9 +21,8 @@ alter table public.scores add column if not exists jumps      int;    -- nombre 
 alter table public.scores add column if not exists replay     jsonb;  -- graine + pas de saut, pour rejouer la partie
 alter table public.scores add column if not exists a_verifier boolean not null default false;  -- partie à contrôler
 alter table public.scores add column if not exists motif      text;   -- pourquoi elle est à contrôler
--- Score caché du classement tant que les mariés ne l’ont pas validé (mettre false dans Table Editor).
--- Concerne les scores qui entreraient sur le podium et les parties à contrôler : un robot ne peut pas
--- s’afficher en tête sans que vous l’ayez vu.
+-- Score caché du classement (mettre true dans Table Editor pour masquer un score à la main).
+-- Plus aucune validation automatique : tous les scores s’affichent tout de suite.
 alter table public.scores add column if not exists en_attente boolean not null default false;
 
 -- Une ligne par partie lancée : c’est le serveur qui tire la graine et note les heures de début et de fin.
@@ -157,8 +156,8 @@ $$;
 --     plus courte = partie accélérée, nettement plus longue = jeu ralenti ou mis en pause ;
 --   - prénom réservé au premier appareil qui l’a utilisé.
 -- Les parties très longues ou au score très élevé sont acceptées mais marquées « à vérifier ».
--- Un score qui entrerait dans le top 3 (PODIUM), ou une partie à vérifier, reste en attente :
--- invisible au classement jusqu’à ce que les mariés le valident. Renvoie {"en_attente": true|false}.
+-- Tout score est visible tout de suite. Les parties suspectes (longues ou très hautes) sont seulement
+-- marquées (a_verifier, motif) pour pouvoir les retrouver. Renvoie {"en_attente": false}.
 drop function if exists public.record_score(uuid, text, text, bigint, int, int, int, jsonb);
 create function public.record_score(
   p_game uuid, p_name text, p_device text, p_seed bigint,
@@ -179,9 +178,6 @@ declare
   v_real    int;
   v_dur     int;
   v_motif   text;
-  v_better  int;
-  v_pending boolean;
-  PODIUM    constant int := 3;   -- 0 = pas de validation du podium
 begin
   if now() >= timestamptz '2027-07-30 00:00:00+02' then raise exception 'concours terminé'; end if;
   if char_length(v_name) < 1 then raise exception 'prénom manquant'; end if;
@@ -212,17 +208,9 @@ begin
   if p_frames > 60 * 60 * 4 then v_motif := 'partie de plus de 4 minutes'; end if;
   if p_score >= 25000 then v_motif := concat_ws(', ', v_motif, 'score de 25 000 ou plus'); end if;
 
-  -- combien d’autres prénoms ont déjà mieux au classement visible ?
-  select count(*) into v_better
-  from (select distinct on (lower(s.name)) s.name, s.score
-        from public.scores s where not s.en_attente
-        order by lower(s.name), s.score desc) t
-  where t.score >= p_score and lower(t.name) <> lower(v_name);
-  v_pending := v_motif is not null or v_better < PODIUM;
-
   insert into public.scores (name, score, elapsed_ms, frames, jumps, replay, a_verifier, motif, en_attente)
-    values (v_name, p_score, v_real, p_frames, p_jumps, p_replay, v_motif is not null, v_motif, v_pending);
-  return json_build_object('en_attente', v_pending);
+    values (v_name, p_score, v_real, p_frames, p_jumps, p_replay, v_motif is not null, v_motif, false);
+  return json_build_object('en_attente', false);
 end;
 $$;
 

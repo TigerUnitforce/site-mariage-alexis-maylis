@@ -13,7 +13,7 @@ côté** (comptes Supabase et GitHub, mot de passe). Dernière revue : 2026-10-3
 | Accélérer une partie | Même contrôle : une partie ne peut pas durer moins longtemps que le temps réellement écoulé. |
 | Réutiliser ou inventer un ticket | Un ticket ne sert qu'une fois, expire au bout de 2 h, et doit exister en base. |
 | Jouer sous le prénom d'un autre | Un prénom appartient au **premier appareil** qui l'a utilisé (« Maÿlis », « maylis » et « Maylis ! » sont le même prénom). |
-| Monter sur le podium avec un robot | Tout score qui entrerait dans le **top 3**, et toute partie suspecte (plus de 4 min ou 25 000 points), reste **caché du classement jusqu'à ta validation**. Tu peux **revoir la partie à l'écran** avant de valider. |
+| Monter sur le podium avec un robot | Pas de validation : les scores s'affichent tout de suite. Les parties suspectes (plus de 4 min ou 25 000 points) sont **marquées** (`a_verifier`, `motif`) pour les retrouver. Le rejeu côté serveur limite déjà la triche ; **fais rejouer le gagnant devant toi** avant de remettre le lot. |
 | Saboter le jeu en lançant des parties en boucle | Au plus 60 parties par connexion internet en 10 minutes (adresse fournie par Cloudflare, impossible à falsifier) ; garde-fou global à 3 000. |
 | Supprimer, modifier, lire ou vider les scores | La clé publique du site n'a **aucun droit** sur les tables ; seules quatre fonctions lui sont ouvertes (lancer une partie, signaler la chute, lire le top 10, voir sa propre adresse). |
 | Requêtes trafiquées (injections, requêtes énormes…) | Refusées par la fonction serveur, et souvent dès Cloudflare. |
@@ -23,9 +23,8 @@ fonction serveur, dans un navigateur, puis en production.
 
 ## Ce qui reste possible
 - **Un programme qui joue dans la page** en appuyant au bon moment ne se distingue pas à coup sûr
-  d'un excellent joueur. Il doit jouer en temps réel, et ne peut pas monter sur le podium sans ta
-  validation. → Avant de valider un podium, **revois la partie** ; avant de remettre le lot,
-  **fais rejouer le gagnant devant toi**.
+  d'un excellent joueur. Il doit jouer en temps réel. → Avant de remettre le lot, **fais rejouer le
+  gagnant devant toi**.
 - **Mot de passe d'accès** : filtre dans le navigateur seulement ; quelqu'un qui lit le code peut le
   contourner. Ne rien mettre de confidentiel sur le site.
 
@@ -43,24 +42,15 @@ fonction serveur, dans un navigateur, puis en production.
    suppression et le `force-push`).
 3. **Mot de passe du site** : pas évident (ni « mariage », ni la date).
 
-## Surveiller et valider
-Dans Supabase → *Table Editor* → `scores`, filtrer **`en_attente` = `true`** : ce sont les scores
-qui attendent ta décision (colonne `motif` pour les parties suspectes).
-
-- **Revoir la partie** : copier la valeur de sa colonne `replay`, ouvrir le site, puis la console
-  du navigateur (F12) et taper :
-  ```js
-  MaArcade.revoir({"seed": 532528475, "inputs": [42, 97, 160]})
-  ```
-  (en remplaçant par la valeur copiée). La partie se rejoue à l'écran avec exactement les mêmes sauts.
-- **Valider** : mettre `en_attente` à `false`. **Refuser** : supprimer la ligne.
-- **Libérer un prénom** (invité qui a changé de téléphone) : table `players`, supprimer sa ligne.
-
-Vue d'ensemble, dans SQL Editor :
+## Surveiller
+Les scores s'affichent sans validation. Pour repérer les parties suspectes, dans SQL Editor :
 ```sql
 select id, name, score, round(frames / 60.0) as duree_s, jumps,
-       en_attente, a_verifier, motif, created_at
+       a_verifier, motif, created_at
 from scores
-order by en_attente desc, score desc
+order by a_verifier desc, score desc
 limit 30;
 ```
+
+- **Masquer un score** : mettre `en_attente` à `true` dans la table `scores`. **Supprimer** : supprimer la ligne.
+- **Libérer un prénom** (invité qui a changé de téléphone) : table `players`, supprimer sa ligne.
